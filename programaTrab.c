@@ -228,8 +228,7 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             exit(1);
         }
 
-        int contador_tamanho = 33; //Ao todo, temos que cada registro incialmente tem 33 bytes de tamanho fixo. Contudo, para pular para o pŕoximo registro, precisamos de 5 bytes a menos
-        //Dado que o campo removido tem 1 byte e tam_registro 4 bytes. Dessa forma, o tamanho inicial é 28 bytes e conseguimos pular para o próximo registro de forma correta. 
+        int contador_tamanho = 33; //Ao todo, temos que cada registro incialmente tem 33 bytes de tamanho fixo. 
         int contador_campo_var = 0;
 
 
@@ -270,25 +269,18 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             registro->tam_Nome = 0;
         }
         else{
-            registro->tam_Nome = contador_campo_var + 1;//////////////////////////////////////Alterar depois
-            registro->nome = (char*) malloc((contador_campo_var + 1) * sizeof(char));
-            strcpy(registro->nome, nome);
-            contador_tamanho += contador_campo_var;
-            contador_campo_var = 0;
-
             //Lógica para eliminar o /0
-            // registro->tam_Nome = contador_campo_var;
-            // registro->nome = (char*) malloc((contador_campo_var + 1) * sizeof(char));
-            // if(registro->nome != NULL){
-            //     strncpy(registro->nome, nome, contador_campo_var);//Copia a string nome sem o ultimo caractere que é um \0
-            //     contador_tamanho += contador_campo_var;
-            //     contador_campo_var = 0;
-            // }
-            // else{s
-            //     printf("Erro ao alocar memória para o nome\n");
-            //     //Ao final, os campos não alocados terão valores nullos e tamanho 0
-            // }
-
+            registro->tam_Nome = contador_campo_var;
+            registro->nome = (char*) malloc((contador_campo_var) * sizeof(char));
+            if(registro->nome != NULL){
+                strncpy(registro->nome, nome, contador_campo_var);//Copia a string nome sem o ultimo caractere que é um \0
+                contador_tamanho += contador_campo_var;
+                contador_campo_var = 0;
+            }
+            else{
+                printf("Erro ao alocar memória para o nome\n");
+                //Ao final, os campos não alocados terão valores nullos e tamanho 0
+            }
 
         }
         pos++;
@@ -302,11 +294,18 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             registro->tam_Nacionalidade = 0;
         }
         else{
-            registro->tam_Nacionalidade = contador_campo_var + 1;//////////////////////////////////////Alterar depois
-            registro->nacionalidade = (char*) malloc((contador_campo_var + 1) * sizeof(char));
-            strcpy(registro->nacionalidade, nacionalidade);
-            contador_tamanho += contador_campo_var;
-            contador_campo_var = 0;
+            //Lógica para eliminar o /0
+            registro->tam_Nacionalidade = contador_campo_var;
+            registro->nacionalidade = (char*) malloc((contador_campo_var) * sizeof(char));
+            if(registro->nome != NULL){
+                strncpy(registro->nacionalidade, nacionalidade, contador_campo_var);//Copia a string nome sem o ultimo caractere que é um \0
+                contador_tamanho += contador_campo_var;
+                contador_campo_var = 0;
+            }
+            else{
+                printf("Erro ao alocar memória para o nome\n");
+                //Ao final, os campos não alocados terão valores nullos e tamanho 0
+            }
         }
         pos++;
 
@@ -319,11 +318,18 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
            registro->tam_Clube = 0;
         }
         else{
-            registro->tam_Clube = contador_campo_var + 1;//////////////////////////////////////Alterar depois
-            registro->clube = (char*) malloc((contador_campo_var + 1) * sizeof(char));
-            strcpy(registro->clube, clube);
-            contador_tamanho += contador_campo_var;
-            contador_campo_var = 0;
+            //Lógica para eliminar o /0
+            registro->tam_Clube = contador_campo_var;
+            registro->clube = (char*) malloc((contador_campo_var) * sizeof(char));
+            if(registro->clube != NULL){
+                strncpy(registro->clube, clube, contador_campo_var);//Copia a string nome sem o ultimo caractere que é um \0
+                contador_tamanho += contador_campo_var;
+                contador_campo_var = 0;
+            }
+            else{
+                printf("Erro ao alocar memória para o nome\n");
+                //Ao final, os campos não alocados terão valores nullos e tamanho 0
+            }
         }
         registro->tamanho_registro = contador_tamanho;   
         return registro;
@@ -437,71 +443,57 @@ bool funcionalidade2(void){
         exit(1);
     }
 
-    //alocar memoria para as strings ao decorrer da leitura
-
-    while(feof(arquivo_bin) == 0){
-
-        //Leitura dos campos iniciais do registro (removido e tamanho do registro)
-        fread(&(registro->removido), sizeof(char), 1, arquivo_bin);
-        printf("Removido: %c\n", registro->removido);
+    //Leitura dos campos iniciais do registro (removido e tamanho do registro 
+    while(fread(&(registro->removido), sizeof(char), 1, arquivo_bin) != 0){
 
         fread(&(registro->tamanho_registro), sizeof(int), 1, arquivo_bin);
-        printf("Tamanho registro: %d\n", registro->tamanho_registro);
 
         //Se o registro não foi removido, lemos os campos restantes e imprimimos na tela
-        //NA EXECUÇÃO OFICIAL, SO IMPRIMIMOS NOME, NACIONALIDADE E CLUBE
         if(registro->removido != '1'){
             fread(&(registro->prox_reg), sizeof(long int), 1, arquivo_bin);
-            printf("Prox reg: %ld\n", registro->prox_reg);
 
             fread(&(registro->id), sizeof(int), 1, arquivo_bin);
-            printf("Id: %d\n", registro->id);
 
             fread(&(registro->idade), sizeof(int), 1, arquivo_bin);
-            printf("Idade: %d\n", registro->idade);
         
             fread(&(registro->tam_Nome), sizeof(int), 1, arquivo_bin);
-            printf("TAM Nome: %d\n", registro->tam_Nome);
 
             //Tratamos os campos nulos de dados
             if(registro->tam_Nome == 0){
                 printf("Nome do Jogador: SEM DADO\n");
-                //Nao sei se preciso pular aqui ou não
             }
             else{
                 //Aloca memória para o nome (tamanho variável)
                 registro->nome = (char*) malloc((registro->tam_Nome) * sizeof(char)); 
                 fread(registro->nome, sizeof(char), registro->tam_Nome, arquivo_bin);
-                printf("Nome: %s\n", registro->nome);
+                printf("Nome do Jogador: %s\n", registro->nome);
             }
 
             fread(&(registro->tam_Nacionalidade), sizeof(int), 1, arquivo_bin);
-            printf("TAM nacionalidade: %d\n", registro->tam_Nacionalidade);
 
             //Tratamos os campos nulos de dados
             if(registro->tam_Nacionalidade == 0){
-                printf("Nacionalidade: SEM DADO\n");
-                //Nao sei se preciso pular aqui ou não
+                printf("Nacionalidade do Jogador: SEM DADO\n");
             }
             else{
                 registro->nacionalidade = (char*) malloc((registro->tam_Nacionalidade) * sizeof(char)); 
                 fread(registro->nacionalidade, sizeof(char), registro->tam_Nacionalidade, arquivo_bin);
-                printf("Nacionalidade: %s\n", registro->nacionalidade);
+                printf("Nacionalidade do Jogador: %s\n", registro->nacionalidade);
             }
 
             fread(&(registro->tam_Clube), sizeof(int), 1, arquivo_bin);
-            printf("TAM clube: %d\n", registro->tam_Clube);
 
             //Tratamos os campos nulos de dados
             if(registro->tam_Clube == 0){
-                printf("Clube: SEM DADO\n");
-                //Nao sei se preciso pular aqui ou não
+                printf("Clube do Jogador: SEM DADO\n");
             }
             else{
                 registro->clube = (char*) malloc(registro->tam_Clube * sizeof(char)); 
                 fread(registro->clube, sizeof(char), registro->tam_Clube, arquivo_bin);
-                printf("Clube: %s\n", registro->clube);
+                printf("Clube do Jogador: %s\n", registro->clube);
             }
+
+            printf("\n");
         }
         else{
             //Se o registro foi removido, pulamos para o próximo registro
