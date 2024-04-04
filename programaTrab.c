@@ -58,6 +58,16 @@ void escrever_cabecalho(FILE* arquivo, CABECALHO* cabecalho){
     fwrite(&cabecalho->n_reg_removidos, sizeof(int), 1, arquivo);
 }
 
+CABECALHO* ler_cabecalho(FILE* arquivo){
+    CABECALHO* cabecalho = (CABECALHO*) malloc(sizeof(CABECALHO));
+    fread(&cabecalho->status, sizeof(char), 1, arquivo);
+    fread(&cabecalho->topo, sizeof(long long int), 1, arquivo);
+    fread(&cabecalho->prox_reg_disponivel, sizeof(long long int), 1, arquivo);
+    fread(&cabecalho->n_reg_disponiveis, sizeof(int), 1, arquivo);
+    fread(&cabecalho->n_reg_removidos, sizeof(int), 1, arquivo);
+    return cabecalho;
+}
+
 //Void pois não preciso ter retorno, só escrever no arquivo novamente
 void escrever_registro_dados(DADOS* registro, FILE* arquivo){
     //Escreve os registros no arquivo binário
@@ -66,12 +76,22 @@ void escrever_registro_dados(DADOS* registro, FILE* arquivo){
     fwrite(&registro->prox_reg, sizeof(long int), 1, arquivo);
     fwrite(&registro->id, sizeof(int), 1, arquivo);
     fwrite(&registro->idade, sizeof(int), 1, arquivo);
+    
+    // Escreve o tamanho do campo e o campo se ele não for nulo
     fwrite(&registro->tam_Nome, sizeof(int), 1, arquivo);
-    fwrite(registro->nome, sizeof(char), registro->tam_Nome, arquivo);
+    if (registro->tam_Nome > 0) {
+        fwrite(registro->nome, sizeof(char), registro->tam_Nome, arquivo);
+    }
+
     fwrite(&registro->tam_Nacionalidade, sizeof(int), 1, arquivo);
-    fwrite(registro->nacionalidade, sizeof(char), registro->tam_Nacionalidade, arquivo);
+    if (registro->tam_Nacionalidade > 0) {
+        fwrite(registro->nacionalidade, sizeof(char), registro->tam_Nacionalidade, arquivo);
+    }
+
     fwrite(&registro->tam_Clube, sizeof(int), 1, arquivo);
-    fwrite(registro->clube, sizeof(char), registro->tam_Clube, arquivo);
+    if (registro->tam_Clube > 0) {
+        fwrite(registro->clube, sizeof(char), registro->tam_Clube, arquivo);
+    }
 }
 
 DADOS* init_registro_dados(){
@@ -87,6 +107,8 @@ DADOS* init_registro_dados(){
     registro->nacionalidade = NULL;
     registro->tam_Clube = 0;
     registro->clube = NULL;
+
+    return registro;
 }
 
 CABECALHO* init_arquivo_binario(FILE* arquivo){
@@ -107,6 +129,8 @@ CABECALHO* init_arquivo_binario(FILE* arquivo){
     escrever_cabecalho(arquivo, cabecalho);
     return cabecalho;
 }
+
+
 
 void apagar_registro(DADOS** registro){
     if((*registro)->nome != NULL){
@@ -195,7 +219,8 @@ void scan_quote_string(char *str) {
 }
 
 DADOS* split_linha(FILE* arquivo_in, const char* linha){
-        DADOS* registro = (DADOS*) malloc(sizeof(DADOS));
+        //Inicializa o registro e verifica se a alocação foi bem sucedida
+        DADOS* registro = init_registro_dados();
 
         if(registro == NULL){
             printf("Erro ao alocar memória para o registro\n");
@@ -203,16 +228,10 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             exit(1);
         }
 
-        int contador_tamanho = 28; //Ao todo, temos que cada registro incialmente tem 33 bytes de tamanho fixo. Contudo, para pular para o pŕoximo registro, precisamos de 5 bytes a menos
+        int contador_tamanho = 33; //Ao todo, temos que cada registro incialmente tem 33 bytes de tamanho fixo. Contudo, para pular para o pŕoximo registro, precisamos de 5 bytes a menos
         //Dado que o campo removido tem 1 byte e tam_registro 4 bytes. Dessa forma, o tamanho inicial é 28 bytes e conseguimos pular para o próximo registro de forma correta. 
         int contador_campo_var = 0;
 
-        //Inicializa o registro e verifica se a alocação foi bem sucedida
-        if(init_registro_dados(registro) == NULL){
-            printf("Erro ao alocar memória para o registro\n");
-            fclose(arquivo_in);
-            exit(1);
-        }
 
         int idade = 0, id = 0, pos = 0;
         char nome[100] = "\0";
@@ -346,8 +365,8 @@ bool funcionalidade1(void){
         DADOS* registro = split_linha(arquivo_in, linha); //Função que separa os campos da linha e retorna um registro com os campos preenchidos
 
         //Printar para conferência
-        printf("Removido: %c", registro->removido);
-        printf("Prox reg: %ld", registro->prox_reg);
+        printf("Removido: %c\n", registro->removido);
+        printf("Prox reg: %ld\n", registro->prox_reg);
         printf("Id: %d\n", registro->id);
         printf("Idade: %d\n", registro->idade);
         printf("TAM Nome: %d\n", registro->tam_Nome);
@@ -401,9 +420,8 @@ bool funcionalidade2(void){
     //Pulamos a leitura do cabeçalho (não nos interessa)
     fseek(arquivo_bin, 0, SEEK_SET);/////////////////////////////////
 
-    CABECALHO* cabecalho = (CABECALHO*) malloc(sizeof(CABECALHO));
+    CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
 
-    fread(cabecalho, sizeof(CABECALHO), 1, arquivo_bin);
     printf("Status: %c\n", cabecalho->status);
     printf("Topo: %lld\n", cabecalho->topo);
     printf("Prox reg disp: %lld\n", cabecalho->prox_reg_disponivel);
