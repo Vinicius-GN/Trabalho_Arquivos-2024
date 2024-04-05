@@ -1,5 +1,9 @@
 #include "utils.h"
 
+/* As funções definidas neste arquivo estão explicadas no arquivo "utils.h". 
+Nesse código você encontrá comentários a nível de variáveis e procedimentos.*/
+
+//Definição da estrutura do cabeçalho, seguindo a ordem recomendada nas espeficiações do trabalho
 struct registro_cabecalho{
     char status;
     long long int topo;
@@ -8,6 +12,7 @@ struct registro_cabecalho{
     int n_reg_removidos;
 };
 
+//Definição da estrutura do registro de dados
 struct registro_dados{
     char removido;
     int tamanho_registro;
@@ -24,6 +29,8 @@ struct registro_dados{
 };
 
 FILE* abrir_arquivo(const char* nome_arquivo, const char* modo){
+
+    //Modularização para procedimento padrão de abertura de arquivos.
     FILE* arquivo = fopen(nome_arquivo, modo);
     if(arquivo == NULL){
         printf("Falha no processamento do arquivo.\n");
@@ -33,6 +40,8 @@ FILE* abrir_arquivo(const char* nome_arquivo, const char* modo){
 }
 
 void escrever_cabecalho(FILE* arquivo, CABECALHO* cabecalho){
+
+    //Escreve o cabeçalho no arquivo binário campo a campo, asssim como solicitado
     fwrite(&cabecalho->status, sizeof(char), 1, arquivo);
     fwrite(&cabecalho->topo, sizeof(long long int), 1, arquivo);
     fwrite(&cabecalho->prox_reg_disponivel, sizeof(long long int), 1, arquivo);
@@ -41,6 +50,8 @@ void escrever_cabecalho(FILE* arquivo, CABECALHO* cabecalho){
 }
 
 CABECALHO* ler_cabecalho(FILE* arquivo){
+
+    //Lê o cabeçalho do arquivo binário campo a campo, dado que não é válida a operaçao de leitura do cabeçalho inteiro
     CABECALHO* cabecalho = (CABECALHO*) malloc(sizeof(CABECALHO));
     fread(&cabecalho->status, sizeof(char), 1, arquivo);
     fread(&cabecalho->topo, sizeof(long long int), 1, arquivo);
@@ -50,16 +61,16 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
     return cabecalho;
 }
 
-//Void pois não preciso ter retorno, só escrever no arquivo novamente
 void escrever_registro_dados(DADOS* registro, FILE* arquivo){
-    //Escreve os registros no arquivo binário
+
+    //Escreve os registros de dados no arquivo binário campo a campo, assim como solicitado
     fwrite(&registro->removido, sizeof(char), 1, arquivo);
     fwrite(&registro->tamanho_registro, sizeof(int), 1, arquivo);
     fwrite(&registro->prox_reg, sizeof(long int), 1, arquivo);
     fwrite(&registro->id, sizeof(int), 1, arquivo);
     fwrite(&registro->idade, sizeof(int), 1, arquivo);
     
-    // Escreve o tamanho do campo e o campo se ele não for nulo
+    //Tratamento de campos de tamanho variável nulos (não imprime nada)
     fwrite(&registro->tam_Nome, sizeof(int), 1, arquivo);
     if (registro->tam_Nome > 0) {
         fwrite(registro->nome, sizeof(char), registro->tam_Nome, arquivo);
@@ -77,6 +88,8 @@ void escrever_registro_dados(DADOS* registro, FILE* arquivo){
 }
 
 DADOS* init_registro_dados(){
+
+    //Inicializa um registro de dados com os campos preenchidos assim como recomendado nas especificações 
     DADOS* registro = (DADOS*)malloc(sizeof(DADOS));
     registro->removido = '0';
     registro->tamanho_registro = 0;
@@ -94,6 +107,8 @@ DADOS* init_registro_dados(){
 }
 
 CABECALHO* init_arquivo_binario(FILE* arquivo){
+
+    //Inicialização do registro de dados
     CABECALHO* cabecalho = (CABECALHO*)malloc(sizeof(CABECALHO));
 
     if(cabecalho == NULL){
@@ -108,13 +123,19 @@ CABECALHO* init_arquivo_binario(FILE* arquivo){
     (cabecalho)->n_reg_disponiveis = 0;
     (cabecalho)->n_reg_removidos = 0;
     
+    //Escreve o cabeçalho no arquivo binário campo a campo
     escrever_cabecalho(arquivo, cabecalho);
+
+    //Retorna um ponteiro para o cabeçalho incializado e escrito no arquivo binário
     return cabecalho;
 }
 
 
 
 void apagar_registro(DADOS** registro){
+
+    //Leberação da memória alocada para os campos de tamanho variável e para o registro em si
+    //O restante dos campos são de tamanho fixo, então são liberados junto com o registro
     if((*registro)->nome != NULL){
         free((*registro)->nome);
         (*registro)->nome = NULL;
@@ -128,7 +149,6 @@ void apagar_registro(DADOS** registro){
         (*registro)->clube = NULL;
     }
 
-    //O restante dos campos são de tamanho fixo, então não precisam ser liberados pois não foram alocados dinamicamente
 
     if(*registro != NULL){
         free(*registro);
@@ -137,11 +157,9 @@ void apagar_registro(DADOS** registro){
 
 }
 
-void binarioNaTela(char *nomeArquivoBinario) { /* Você não precisa entender o código dessa função. */
+void binarioNaTela(char *nomeArquivoBinario) {
 
-	/* Use essa função para comparação no run.codes. Lembre-se de ter fechado (fclose) o arquivo anteriormente.
-	*  Ela vai abrir de novo para leitura e depois fechar (você não vai perder pontos por isso se usar ela). */
-
+    //Essa função foi disponibilizada pela professora e serve para imprimir o arquivo binário na tela
 	unsigned long i, cs;
 	unsigned char *mb;
 	size_t fl;
@@ -169,16 +187,8 @@ void scan_quote_string(char *str) {
 
 	/*
 	*	Use essa função para ler um campo string delimitado entre aspas (").
-	*	Chame ela na hora que for ler tal campo. Por exemplo:
-	*
-	*	A entrada está da seguinte forma:
-	*		nomeDoCampo "MARIA DA SILVA"
-	*
-	*	Para ler isso para as strings já alocadas str1 e str2 do seu programa, você faz:
-	*		scanf("%s", str1); // Vai salvar nomeDoCampo em str1
-	*		scan_quote_string(str2); // Vai salvar MARIA DA SILVA em str2 (sem as aspas)
-	*
-	*/
+	*	Chame ela na hora que for ler tal campo.
+    */
 
 	char R;
 
@@ -210,24 +220,28 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             exit(1);
         }
 
-        int contador_tamanho = 33; //Ao todo, temos que cada registro incialmente tem 33 bytes de tamanho fixo. 
+        //Ao todo, temos que cada registro incialmente tem 33 bytes de tamanho fixo. 
+        int contador_tamanho = 33; 
+
+        //Variável que acumulará o tamanho dos campos de tamanho variável para a alocação e contagem do tamanho do registro
         int contador_campo_var = 0;
 
 
         int idade = 0, id = 0, pos = 0;
+
+        //Inicialização de strings auxiliares para armazenar os campos de tamanho variável
         char nome[100] = "\0";
         char nacionalidade[100] = "\0";
         char clube[100] = "\0";
 
-        // fgets em C lê até o fim da linha ou até que o número máximo de caracteres seja lido, o que ocorrer primeir
         printf("%s\n", linha);
 
-        //Separação dos campos de tam fixo:
+        //Separação dos campos de tamanho fixo (estratégia byte a byte):
         for(;linha[pos] != ','; pos++){
             id = id * 10 + (linha[pos] - '0');
         }
         registro->id = id;
-        pos++;
+        pos++;//Passa pela vírgula
 
         for(;linha[pos] != ','; pos++){
             idade = idade * 10 + (linha[pos] - '0');
@@ -239,10 +253,11 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
         else{
             registro->idade = idade;}
             contador_campo_var = 0;
-        pos++;
+        pos++;//Passa pela vírgula
 
         //Separação dos campos de tam variável:
-        //LER NOME
+
+        //Leitura do nome do jogador usando a string auxiliar
         for(; linha[pos] != ','; pos++){
             nome[contador_campo_var] = linha[pos];
             contador_campo_var++;
@@ -251,23 +266,23 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             registro->tam_Nome = 0;
         }
         else{
-            //Lógica para eliminar o /0
             registro->tam_Nome = contador_campo_var;
             registro->nome = (char*) malloc((contador_campo_var) * sizeof(char));
             if(registro->nome != NULL){
-                strncpy(registro->nome, nome, contador_campo_var);//Copia a string nome sem o ultimo caractere que é um \0
-                contador_tamanho += contador_campo_var;
+                //A função strncpy possibilita determianar a quantidade de bytes a serem copiados para eliminar o /0 do final da string
+                strncpy(registro->nome, nome, contador_campo_var);
+                contador_tamanho += contador_campo_var; //Atualiza o tamanho do registro
                 contador_campo_var = 0;
             }
             else{
+                //Não preciso definir os campos de tamanho variável como nulos pois eles ja são inciailizados assim
                 printf("Erro ao alocar memória para o nome\n");
-                //Ao final, os campos não alocados terão valores nullos e tamanho 0
             }
 
         }
         pos++;
         
-        //LER NACIONALIDADE
+        //Ler nacionalidade dos jogadores
         for(; linha[pos] != ','; pos++){
             nacionalidade[contador_campo_var] = linha[pos];
             contador_campo_var++;
@@ -286,12 +301,11 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             }
             else{
                 printf("Erro ao alocar memória para o nome\n");
-                //Ao final, os campos não alocados terão valores nullos e tamanho 0
             }
         }
         pos++;
 
-        //LER CLUBE
+        //Ler o clube dos jogadores
         for(; linha[pos] != '\n'; pos++){
             clube[contador_campo_var] = linha[pos];
             contador_campo_var++;
@@ -310,7 +324,6 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             }
             else{
                 printf("Erro ao alocar memória para o nome\n");
-                //Ao final, os campos não alocados terão valores nullos e tamanho 0
             }
         }
         registro->tamanho_registro = contador_tamanho;   
@@ -318,8 +331,8 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
     }
 
 
-bool funcionalidade1(void){
-    //Contador do número de registros
+void funcionalidade1(void){
+    //Contador do número de registros lidos
     int count_registros = 0;
 
     //Leitura dos nomes dos arquivos
@@ -349,6 +362,7 @@ bool funcionalidade1(void){
     printf("%s\n", linha);
 
 //// PEGAR LINHA A LINHA E ESCREVER NO ARQUIVO BINÁRIO ////
+//A função fgets lê até o fim da linha ou até que o número máximo de caracteres seja lido, o que ocorrer primeiro
    while((fgets(linha, 256, arquivo_in)) != NULL){
         DADOS* registro = split_linha(arquivo_in, linha); //Função que separa os campos da linha e retorna um registro com os campos preenchidos
 
@@ -395,29 +409,28 @@ bool funcionalidade1(void){
 
     //Exigência do trabalho
     binarioNaTela(arquivo_out_name);
-
-    return true;
+    return;
 }
 
-bool funcionalidade2(void){
-    //Aqui temos que fazer a leitura dos registros do arquivo binário e imprimir na tela
+void funcionalidade2(void){
+    //Tentativa de abrir o arquivo binário solicitado pelo usuário
     char nome_arquivo_binario[50];
     scanf("%s", nome_arquivo_binario);
     FILE* arquivo_bin = abrir_arquivo(nome_arquivo_binario, "rb");
 
-    //Pulamos a leitura do cabeçalho (não nos interessa)
-    fseek(arquivo_bin, 0, SEEK_SET);/////////////////////////////////
+    //Lemos os campos do cabeçalho para passar pelos dados (outra opção seria usar o fseek)
+    fseek(arquivo_bin, 0, SEEK_SET);
 
     CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
 
-    printf("Status: %c\n", cabecalho->status);
-    printf("Topo: %lld\n", cabecalho->topo);
-    printf("Prox reg disp: %lld\n", cabecalho->prox_reg_disponivel);
-    printf("N reg disp: %d\n", cabecalho->n_reg_disponiveis);
-    printf("N reg removidos: %d\n", cabecalho->n_reg_removidos);
+    // printf("Status: %c\n", cabecalho->status);
+    // printf("Topo: %lld\n", cabecalho->topo);
+    // printf("Prox reg disp: %lld\n", cabecalho->prox_reg_disponivel);
+    // printf("N reg disp: %d\n", cabecalho->n_reg_disponiveis);
+    // printf("N reg removidos: %d\n", cabecalho->n_reg_removidos);
 
 
-    //Leitura e impressão dos registros
+    //Alocação do registro de dados
     DADOS* registro = (DADOS*) malloc(sizeof(DADOS));
     if (registro == NULL){
         printf("Erro ao alocar memória para o registro\n");
@@ -425,7 +438,7 @@ bool funcionalidade2(void){
         exit(1);
     }
 
-    //Leitura dos campos iniciais do registro (removido e tamanho do registro 
+    ////////// LEITURA DOS REGISTROS DO ARQUIVO BINÀRIO E IMPRESSÃO//////////
     while(fread(&(registro->removido), sizeof(char), 1, arquivo_bin) != 0){
 
         fread(&(registro->tamanho_registro), sizeof(int), 1, arquivo_bin);
@@ -449,6 +462,8 @@ bool funcionalidade2(void){
                 registro->nome = (char*) malloc((registro->tam_Nome) * sizeof(char)); 
                 fread(registro->nome, sizeof(char), registro->tam_Nome, arquivo_bin);
                 printf("Nome do Jogador: %s\n", registro->nome);
+                free(registro->nome);
+                registro->nome = NULL;
             }
 
             fread(&(registro->tam_Nacionalidade), sizeof(int), 1, arquivo_bin);
@@ -461,6 +476,8 @@ bool funcionalidade2(void){
                 registro->nacionalidade = (char*) malloc((registro->tam_Nacionalidade) * sizeof(char)); 
                 fread(registro->nacionalidade, sizeof(char), registro->tam_Nacionalidade, arquivo_bin);
                 printf("Nacionalidade do Jogador: %s\n", registro->nacionalidade);
+                free(registro->nacionalidade);
+                registro->nacionalidade = NULL;
             }
 
             fread(&(registro->tam_Clube), sizeof(int), 1, arquivo_bin);
@@ -473,6 +490,8 @@ bool funcionalidade2(void){
                 registro->clube = (char*) malloc(registro->tam_Clube * sizeof(char)); 
                 fread(registro->clube, sizeof(char), registro->tam_Clube, arquivo_bin);
                 printf("Clube do Jogador: %s\n", registro->clube);
+                free(registro->clube);
+                registro->clube = NULL;
             }
 
             printf("\n");
@@ -488,15 +507,15 @@ bool funcionalidade2(void){
 
     }
 
+    //Fechamento do registro binário e liberação da memória alocada para o registro
     fclose(arquivo_bin);
     apagar_registro(&registro);
-    return true;
+    return;
 }
 
-bool funcionalidade3(void){
+void funcionalidade3(void){
     //Aqui temos que fazer a busca de um ou mais campos
     //Lembrar de tratar as aspas duplas
     //Lembrar de não exibir registros removidos
 
-    return true;
 }
