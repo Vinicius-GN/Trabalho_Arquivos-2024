@@ -71,6 +71,7 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
 }
 
 DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
+    //lê os campos fixos do registro
     fread(&(registro->prox_reg), sizeof(long int), 1, arquivo_bin);
 
     fread(&(registro->id), sizeof(int), 1, arquivo_bin);
@@ -110,6 +111,7 @@ DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
 
 }
 void print_registro(DADOS* registro){
+    //printa os campos requisitados do registro, caso não forem nulos
     if(registro->tam_Nome == 0){
                 printf("Nome do Jogador: SEM DADO\n");
             }
@@ -138,6 +140,7 @@ void print_registro(DADOS* registro){
 }
 
 void add_lista(BL* lista, DADOS* registro){
+    //aloca um novo registro e copia os dados do registro auxiliar pra ele
     BN* no = (BN*) malloc(sizeof(BN));
     no->prox=NULL;
     no->registro= (DADOS*) malloc(sizeof(DADOS));
@@ -146,6 +149,7 @@ void add_lista(BL* lista, DADOS* registro){
     no->registro->tam_Nome = registro->tam_Nome;
     no->registro->tam_Nacionalidade = registro->tam_Nacionalidade;
     no->registro->tam_Clube = registro->tam_Clube;
+    //checa se as strings não estam vazias antes de alocar e copiar
     if(registro->tam_Nome!=0){
         no->registro->nome = (char*) malloc(30*sizeof(char));
         strcpy(no->registro->nome,registro->nome);
@@ -158,6 +162,7 @@ void add_lista(BL* lista, DADOS* registro){
         no->registro->clube = (char*) malloc(30*sizeof(char));
         strcpy(no->registro->clube,registro->clube);
     }
+    //checa se a lista está vazia e realiza a inserção do registro
     if(lista->ini==NULL){
         lista->ini = no;
         lista->fim = no;
@@ -166,6 +171,29 @@ void add_lista(BL* lista, DADOS* registro){
         lista->fim->prox = no;
         lista->fim = no;
     }
+}
+void apagar_lista(BL** lista){
+    //inicializo as variavéis usadas para percorrer a lista
+    BN *node, *ant;
+    ant = (*lista)->ini;
+    //se assegura de que a lista não está vazia para evitar segfaukt
+    if(ant!=NULL){
+        node=ant->prox;
+    }
+    //percorre a lista liberando o nó e o registro anterior
+    while(ant!=NULL){
+        apagar_registro(&(ant->registro));
+        ant->prox=NULL;
+        free(ant);
+        ant=node;
+        if(node!=NULL)
+            node=node->prox;
+    }
+    //libera a lista em si
+    (*lista)->ini=NULL;
+    (*lista)->fim=NULL;
+    free(*lista);
+    lista=NULL;
 }
 
 void escrever_registro_dados(DADOS* registro, FILE* arquivo){
@@ -413,10 +441,11 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
         pos++;
 
         //Ler o clube dos jogadores
-        for(; linha[pos] != '\n'; pos++){
+        for(;linha[pos] != '\n' && linha[pos] != '\r'; pos++){
             clube[contador_campo_var] = linha[pos];
             contador_campo_var++;
         }
+
         if(contador_campo_var == 0){
            registro->tam_Clube = 0;
         }
@@ -530,11 +559,6 @@ void funcionalidade2(void){
 
     CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
 
-    // printf("Status: %c\n", cabecalho->status);
-    // printf("Topo: %lld\n", cabecalho->topo);
-    // printf("Prox reg disp: %lld\n", cabecalho->prox_reg_disponivel);
-    // printf("N reg disp: %d\n", cabecalho->n_reg_disponiveis);
-    // printf("N reg removidos: %d\n", cabecalho->n_reg_removidos);
 
 
     //Alocação do registro de dados
@@ -575,23 +599,33 @@ void funcionalidade2(void){
 void funcionalidade3(){
     char nome_arquivo_binario[50],campo[20];
     int  n_buscas,n_campos,add = 1;
+    //recebe o nome e abre o aquivo
     scanf("%s", nome_arquivo_binario);
     FILE* arquivo_bin = abrir_arquivo(nome_arquivo_binario, "rb");
+    //recebe o número de buscas que serão realizadas
     scanf(" %d",&n_buscas);
+    //aloca e testa o registro auxiliar
     DADOS* registro = (DADOS*) malloc(sizeof(DADOS));
-    CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
     if (registro == NULL){
         printf("Erro ao alocar memória para o registro\n");
         fclose(arquivo_bin);
         exit(1);
     }
+    //lê o cabeçalho para corrigir a posição do ponteiro do arquivo
+    CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
+    //aloca o vetor de registros de parâmetros das buscas
     DADOS** buscas = (DADOS**) malloc(n_buscas*sizeof(DADOS*));
+    //aloca o vetor de listas de resultados das buscas
     BL** listas = (BL**) malloc(n_buscas*sizeof(BL*));
     for(int i=0;i<n_buscas;i++){
-        buscas[i] = (DADOS*) malloc(n_buscas*sizeof(DADOS));
+        //aloca os registros com os parâmetros da buscas
+        buscas[i] = (DADOS*) malloc(sizeof(DADOS));
+        //aloca listas para guardar os resultados das buscas
         listas[i] = (BL*) malloc(n_buscas*sizeof(BL));
+        //inicializa as listas
         listas[i]->ini=NULL;
         listas[i]->fim=NULL;
+        //inicializa os registros
         buscas[i]->id=-1;
         buscas[i]->idade= -1;
         buscas[i]->nome = (char*) malloc(sizeof(char)*30);
@@ -601,8 +635,11 @@ void funcionalidade3(){
         buscas[i]->clube = (char*) malloc(sizeof(char)*30);
         strcpy(buscas[i]->clube,"$");
     }
+    //percorre as buscas
     for(int i=0;i<n_buscas;i++){
+        //recebe o número de parâmetros que essa busca terá
         scanf("%d",&n_campos);
+        //preenche os parâmetros do registro
         for(int j=0;j<n_campos;j++){
             scanf("%s",campo);
             if(strcmp(campo,"id")==0){
@@ -618,17 +655,19 @@ void funcionalidade3(){
                 scan_quote_string(buscas[i]->nacionalidade);
             }
             else if(strcmp(campo,"clube")==0){
-                scan_quote_string(buscas[i]->nacionalidade);
+                scan_quote_string(buscas[i]->clube);
             }
         }
     }
-
+    //percorre todos os registros do arquivo pulando os que estão marcados para remoção
     while(fread(&(registro->removido), sizeof(char), 1, arquivo_bin) != 0){
         fread(&(registro->tamanho_registro), sizeof(int), 1, arquivo_bin);
         if(registro->removido != '1'){
             ler_registro(arquivo_bin,registro);
             for(int i=0;i<n_buscas;i++){
                 add=1;
+                //desclassifica o registro se ele não cumprir os parâmetros da busca
+                //o parâmetro só é levado em conta se ele não estiver vazio
                 if(buscas[i]->id!=-1){
                     if(registro->id != buscas[i]->id){
                         add=0;
@@ -657,11 +696,13 @@ void funcionalidade3(){
                     }
                     
                 }
+                //caso satisfaça os parâmetros insere uma cópia do registro auxiliar na lista de resultados
                 if(add==1){
                     add_lista(listas[i],registro);
                 }
                
             }
+            //libera as strings utilizadas no registro auxiliar
             if(registro->tam_Nome!=0){
                     free(registro->nome);
                     registro->nome = NULL;
@@ -683,18 +724,29 @@ void funcionalidade3(){
         if(feof(arquivo_bin)){
             break;
         }
-        }
+    }
+    //fecha o arquivo e libera o registro auxiliar
     fclose(arquivo_bin);
     apagar_registro(&registro);
 
+    //percorre pelas buscas
     for(int i=0;i<n_buscas;i++){
-        printf("busca %d\n",i+1);
+        printf("busca %d\n\n",i+1);
         BN* aux=listas[i]->ini;
+        //percorre e printa as listas com os resultados das buscas
         while(aux!=NULL){
             print_registro(aux->registro);
             aux=aux->prox;
         }
+        //libera o registro dos parâmetros da busca e a lista dos resultados
+        apagar_registro(&(buscas[i]));
+        apagar_lista(&(listas[i]));
     }
+    //libera os dois vetores utilizaos na busca
+    free(buscas);
+    buscas=NULL;
+    free(listas);
+    listas=NULL;
 
     return;
 }
