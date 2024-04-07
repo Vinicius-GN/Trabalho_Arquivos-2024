@@ -10,6 +10,8 @@
 
 typedef struct registro_cabecalho CABECALHO;
 typedef struct registro_dados DADOS;
+typedef struct busca_no BN;
+typedef struct busca_lista BL;
 
 
 

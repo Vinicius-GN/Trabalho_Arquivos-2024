@@ -12,6 +12,15 @@ struct registro_cabecalho{
     int n_reg_removidos;
 };
 
+struct busca_no{
+    DADOS* registro;
+    BN* prox;
+};
+struct busca_lista{
+    BN* ini;
+    BN* fim;
+};
+
 //Definição da estrutura do registro de dados
 struct registro_dados{
     char removido;
@@ -59,6 +68,104 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
     fread(&cabecalho->n_reg_disponiveis, sizeof(int), 1, arquivo);
     fread(&cabecalho->n_reg_removidos, sizeof(int), 1, arquivo);
     return cabecalho;
+}
+
+DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
+    fread(&(registro->prox_reg), sizeof(long int), 1, arquivo_bin);
+
+    fread(&(registro->id), sizeof(int), 1, arquivo_bin);
+
+    fread(&(registro->idade), sizeof(int), 1, arquivo_bin);
+        
+    fread(&(registro->tam_Nome), sizeof(int), 1, arquivo_bin);
+
+    //Tratamos os campos nulos de dados
+    if(registro->tam_Nome != 0){
+        //Aloca memória para o nome (tamanho variável)
+        registro->nome = (char*) malloc((registro->tam_Nome+1) * sizeof(char)); 
+        fread(registro->nome, sizeof(char), registro->tam_Nome, arquivo_bin);
+        registro->nome[registro->tam_Nome] = '\0';
+    }
+
+    fread(&(registro->tam_Nacionalidade), sizeof(int), 1, arquivo_bin);
+
+    //Tratamos os campos nulos de dados
+    if(registro->tam_Nacionalidade != 0){
+        registro->nacionalidade = (char*) malloc((registro->tam_Nacionalidade+1) * sizeof(char)); 
+        fread(registro->nacionalidade, sizeof(char), registro->tam_Nacionalidade, arquivo_bin);
+        registro->nacionalidade[registro->tam_Nacionalidade]='\0';
+    }
+
+        fread(&(registro->tam_Clube), sizeof(int), 1, arquivo_bin);
+
+        //Tratamos os campos nulos de dados
+    if(registro->tam_Clube != 0){
+        registro->clube = (char*) malloc((registro->tam_Clube+1) * sizeof(char)); 
+        fread(registro->clube, sizeof(char), registro->tam_Clube, arquivo_bin);
+        registro->clube[registro->tam_Clube] = '\0';
+    }
+
+
+        
+
+}
+void print_registro(DADOS* registro){
+    if(registro->tam_Nome == 0){
+                printf("Nome do Jogador: SEM DADO\n");
+            }
+            else{
+                printf("Nome do Jogador: %s\n", registro->nome);
+                free(registro->nome);
+                registro->nome = NULL;
+            }
+            if(registro->tam_Nacionalidade == 0){
+                printf("Nacionalidade do Jogador: SEM DADO\n");
+            }
+            else{
+                printf("Nacionalidade do Jogador: %s\n", registro->nacionalidade);
+                free(registro->nacionalidade);
+                registro->nacionalidade = NULL;
+            }
+            if(registro->tam_Clube == 0){
+                printf("Clube do Jogador: SEM DADO\n");
+            }
+            else{
+                printf("Clube do Jogador: %s\n", registro->clube);
+                free(registro->clube);
+                registro->clube = NULL;
+            }
+            printf("\n");
+}
+
+void add_lista(BL* lista, DADOS* registro){
+    BN* no = (BN*) malloc(sizeof(BN));
+    no->prox=NULL;
+    no->registro= (DADOS*) malloc(sizeof(DADOS));
+    no->registro->id = registro->id;
+    no->registro->idade = registro->idade;
+    no->registro->tam_Nome = registro->tam_Nome;
+    no->registro->tam_Nacionalidade = registro->tam_Nacionalidade;
+    no->registro->tam_Clube = registro->tam_Clube;
+    if(registro->tam_Nome!=0){
+        no->registro->nome = (char*) malloc(30*sizeof(char));
+        strcpy(no->registro->nome,registro->nome);
+    }
+    if(registro->tam_Nacionalidade!=0){
+        no->registro->nacionalidade = (char*) malloc(30*sizeof(char));
+        strcpy(no->registro->nacionalidade,registro->nacionalidade);
+    }
+    if(registro->tam_Clube!=0){
+        no->registro->clube = (char*) malloc(30*sizeof(char));
+        strcpy(no->registro->clube,registro->clube);
+    }
+    if(lista->ini==NULL){
+        lista->ini = no;
+        lista->fim = no;
+    }
+    else{
+        lista->fim->prox = no;
+        lista->fim = no;
+    }
 }
 
 void escrever_registro_dados(DADOS* registro, FILE* arquivo){
@@ -445,56 +552,8 @@ void funcionalidade2(void){
 
         //Se o registro não foi removido, lemos os campos restantes e imprimimos na tela
         if(registro->removido != '1'){
-            fread(&(registro->prox_reg), sizeof(long int), 1, arquivo_bin);
-
-            fread(&(registro->id), sizeof(int), 1, arquivo_bin);
-
-            fread(&(registro->idade), sizeof(int), 1, arquivo_bin);
-        
-            fread(&(registro->tam_Nome), sizeof(int), 1, arquivo_bin);
-
-            //Tratamos os campos nulos de dados
-            if(registro->tam_Nome == 0){
-                printf("Nome do Jogador: SEM DADO\n");
-            }
-            else{
-                //Aloca memória para o nome (tamanho variável)
-                registro->nome = (char*) malloc((registro->tam_Nome) * sizeof(char)); 
-                fread(registro->nome, sizeof(char), registro->tam_Nome, arquivo_bin);
-                printf("Nome do Jogador: %s\n", registro->nome);
-                free(registro->nome);
-                registro->nome = NULL;
-            }
-
-            fread(&(registro->tam_Nacionalidade), sizeof(int), 1, arquivo_bin);
-
-            //Tratamos os campos nulos de dados
-            if(registro->tam_Nacionalidade == 0){
-                printf("Nacionalidade do Jogador: SEM DADO\n");
-            }
-            else{
-                registro->nacionalidade = (char*) malloc((registro->tam_Nacionalidade) * sizeof(char)); 
-                fread(registro->nacionalidade, sizeof(char), registro->tam_Nacionalidade, arquivo_bin);
-                printf("Nacionalidade do Jogador: %s\n", registro->nacionalidade);
-                free(registro->nacionalidade);
-                registro->nacionalidade = NULL;
-            }
-
-            fread(&(registro->tam_Clube), sizeof(int), 1, arquivo_bin);
-
-            //Tratamos os campos nulos de dados
-            if(registro->tam_Clube == 0){
-                printf("Clube do Jogador: SEM DADO\n");
-            }
-            else{
-                registro->clube = (char*) malloc(registro->tam_Clube * sizeof(char)); 
-                fread(registro->clube, sizeof(char), registro->tam_Clube, arquivo_bin);
-                printf("Clube do Jogador: %s\n", registro->clube);
-                free(registro->clube);
-                registro->clube = NULL;
-            }
-
-            printf("\n");
+            ler_registro(arquivo_bin,registro);
+            print_registro(registro);
         }
         else{
             //Se o registro foi removido, pulamos para o próximo registro
@@ -513,9 +572,129 @@ void funcionalidade2(void){
     return;
 }
 
-void funcionalidade3(void){
-    //Aqui temos que fazer a busca de um ou mais campos
-    //Lembrar de tratar as aspas duplas
-    //Lembrar de não exibir registros removidos
+void funcionalidade3(){
+    char nome_arquivo_binario[50],campo[20];
+    int  n_buscas,n_campos,add = 1;
+    scanf("%s", nome_arquivo_binario);
+    FILE* arquivo_bin = abrir_arquivo(nome_arquivo_binario, "rb");
+    scanf(" %d",&n_buscas);
+    DADOS* registro = (DADOS*) malloc(sizeof(DADOS));
+    CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
+    if (registro == NULL){
+        printf("Erro ao alocar memória para o registro\n");
+        fclose(arquivo_bin);
+        exit(1);
+    }
+    DADOS** buscas = (DADOS**) malloc(n_buscas*sizeof(DADOS*));
+    BL** listas = (BL**) malloc(n_buscas*sizeof(BL*));
+    for(int i=0;i<n_buscas;i++){
+        buscas[i] = (DADOS*) malloc(n_buscas*sizeof(DADOS));
+        listas[i] = (BL*) malloc(n_buscas*sizeof(BL));
+        listas[i]->ini=NULL;
+        listas[i]->fim=NULL;
+        buscas[i]->id=-1;
+        buscas[i]->idade= -1;
+        buscas[i]->nome = (char*) malloc(sizeof(char)*30);
+        strcpy(buscas[i]->nome,"$");
+        buscas[i]->nacionalidade = (char*) malloc(sizeof(char)*30);
+        strcpy(buscas[i]->nacionalidade,"$");
+        buscas[i]->clube = (char*) malloc(sizeof(char)*30);
+        strcpy(buscas[i]->clube,"$");
+    }
+    for(int i=0;i<n_buscas;i++){
+        scanf("%d",&n_campos);
+        for(int j=0;j<n_campos;j++){
+            scanf("%s",campo);
+            if(strcmp(campo,"id")==0){
+                scanf(" %d",&buscas[i]->id);
+            }
+            else if(strcmp(campo,"idade")==0){
+                scanf(" %d",&buscas[i]->idade);
+            }
+            else if(strcmp(campo,"nome")==0){
+                scan_quote_string(buscas[i]->nome);
+            }
+            else if(strcmp(campo,"nacionalidade")==0){
+                scan_quote_string(buscas[i]->nacionalidade);
+            }
+            else if(strcmp(campo,"clube")==0){
+                scan_quote_string(buscas[i]->nacionalidade);
+            }
+        }
+    }
 
+    while(fread(&(registro->removido), sizeof(char), 1, arquivo_bin) != 0){
+        fread(&(registro->tamanho_registro), sizeof(int), 1, arquivo_bin);
+        if(registro->removido != '1'){
+            ler_registro(arquivo_bin,registro);
+            for(int i=0;i<n_buscas;i++){
+                add=1;
+                if(buscas[i]->id!=-1){
+                    if(registro->id != buscas[i]->id){
+                        add=0;
+                    }
+                }
+                if(buscas[i]->idade!=-1){
+                    if(registro->idade != buscas[i]->idade){
+                        add=0;
+                    }
+                }
+                if(strcmp(buscas[i]->nome,"$")!=0){
+                    if(registro->tam_Nome == 0 || strcmp(buscas[i]->nome,registro->nome)!=0){
+                        add=0;
+                    }
+
+                }
+                if(strcmp(buscas[i]->nacionalidade,"$")!=0){
+                    if(registro->tam_Nacionalidade == 0 ||strcmp(buscas[i]->nacionalidade,registro->nacionalidade)!=0){
+                        add=0;
+                    }
+                    
+                }
+                if(strcmp(buscas[i]->clube,"$")!=0){
+                    if(registro->tam_Clube == 0 ||strcmp(buscas[i]->clube,registro->clube)!=0){
+                        add=0;
+                    }
+                    
+                }
+                if(add==1){
+                    add_lista(listas[i],registro);
+                }
+               
+            }
+            if(registro->tam_Nome!=0){
+                    free(registro->nome);
+                    registro->nome = NULL;
+                }
+                if(registro->tam_Nome!=0){
+                    free(registro->nome);
+                    registro->nome = NULL;
+                }
+                if(registro->tam_Nome!=0){
+                    free(registro->nome);
+                    registro->nome = NULL;
+                }   
+        }
+        else{
+        //Se o registro foi removido, pulamos para o próximo registro
+            fseek(arquivo_bin, registro->tamanho_registro, SEEK_CUR);
+        }
+
+        if(feof(arquivo_bin)){
+            break;
+        }
+        }
+    fclose(arquivo_bin);
+    apagar_registro(&registro);
+
+    for(int i=0;i<n_buscas;i++){
+        printf("busca %d\n",i+1);
+        BN* aux=listas[i]->ini;
+        while(aux!=NULL){
+            print_registro(aux->registro);
+            aux=aux->prox;
+        }
+    }
+
+    return;
 }
