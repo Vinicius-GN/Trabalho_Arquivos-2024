@@ -56,6 +56,9 @@ void funcionalidade1(void){
 
     //Inicializando o arquivo de entrada
     FILE* arquivo_in = abrir_arquivo(arquivo_in_name, "r");
+    if(arquivo_in == NULL){
+        return;
+    }
 
     /*Inicio de leitura e escrita dos dados no arquivo binário*/
     fseek(arquivo_in, 0, SEEK_SET);//Resetar o ponteiro do arquivo para o início (precaução)
@@ -159,12 +162,7 @@ void funcionalidade2(void){
         else{
             //Se o registro foi removido, pulamos para o próximo registro
             fseek(arquivo_bin, registro->tamanho_registro, SEEK_CUR);
-            }
-
-        if(feof(arquivo_bin)){
-            break;
         }
-
     }
 
     //Fechamento do registro binário e liberação da memória alocada para o registro

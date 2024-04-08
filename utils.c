@@ -62,6 +62,11 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
 
     //Lê o cabeçalho do arquivo binário campo a campo, dado que não é válida a operaçao de leitura do cabeçalho inteiro
     CABECALHO* cabecalho = (CABECALHO*) malloc(sizeof(CABECALHO));
+    if(cabecalho == NULL){
+        printf("Erro ao alocar memória para o cabeçalho\n");
+        fclose(arquivo);
+        exit(1);
+    }
     fread(&cabecalho->status, sizeof(char), 1, arquivo);
     fread(&cabecalho->topo, sizeof(long long int), 1, arquivo);
     fread(&cabecalho->prox_reg_disponivel, sizeof(long long int), 1, arquivo);
@@ -111,30 +116,37 @@ DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
 
 }
 void print_registro(DADOS* registro){
-    //printa os campos requisitados do registro, caso não forem nulos
+    //printa os campos requisitados do registro, caso não forem nulos 
     if(registro->tam_Nome == 0){
                 printf("Nome do Jogador: SEM DADO\n");
             }
             else{
                 printf("Nome do Jogador: %s\n", registro->nome);
-                free(registro->nome);
-                registro->nome = NULL;
+                if(registro->nome != NULL){
+                    free(registro->nome);
+                    registro->nome = NULL;
+                }
+                
             }
             if(registro->tam_Nacionalidade == 0){
                 printf("Nacionalidade do Jogador: SEM DADO\n");
             }
             else{
                 printf("Nacionalidade do Jogador: %s\n", registro->nacionalidade);
-                free(registro->nacionalidade);
-                registro->nacionalidade = NULL;
+                if(registro->nacionalidade != NULL){
+                    free(registro->nacionalidade);
+                    registro->nacionalidade = NULL;
+                }
             }
             if(registro->tam_Clube == 0){
                 printf("Clube do Jogador: SEM DADO\n");
             }
             else{
                 printf("Clube do Jogador: %s\n", registro->clube);
-                free(registro->clube);
-                registro->clube = NULL;
+                if(registro->clube != NULL){
+                    free(registro->clube);
+                    registro->clube = NULL;
+                }
             }
             printf("\n");
 }
