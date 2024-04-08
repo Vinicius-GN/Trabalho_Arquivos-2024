@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "funcionalidades.h"
 
 /* Trabalho introdutório da disciplina de Organização de Arquivos 
 
@@ -47,7 +47,6 @@ Registros marcados como logicamente removidos não devem ser exibidos.
 */
 
 int main(){
-    printf("Inicio de execução\n");
     int command;
     scanf("%d", &command);
     interface(command);

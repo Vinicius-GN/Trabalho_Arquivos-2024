@@ -1,5 +1,5 @@
-all: programaTrab.o utils.o
-	gcc -o programaTrab programaTrab.o utils.o 
+all: programaTrab.o utils.o funcionalidades.o
+	gcc -o programaTrab programaTrab.o utils.o funcionalidades.o
 	
 
 utils.o: utils.c
@@ -8,7 +8,10 @@ utils.o: utils.c
 programaTrab.o: programaTrab.c
 	gcc -c programaTrab.c 
 
+funcionalidades.o: funcionalidades.c
+	gcc -c funcionalidades.c
+
 clean:
-	rm -f programaTrab programaTrab.o utils.o
+	rm -f programaTrab programaTrab.o utils.o funcionalidades.o
 run:
 	./programaTrab
