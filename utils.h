@@ -100,4 +100,5 @@ void add_lista(BL* lista, DADOS* registro);
 void apagar_cabecalho(CABECALHO** cabecalho);
 DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro);
 void print_registro(DADOS* registro);
+void debug (void);
 #endif

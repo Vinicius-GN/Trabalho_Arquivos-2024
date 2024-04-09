@@ -277,6 +277,22 @@ CABECALHO* init_arquivo_binario(FILE* arquivo){
     return cabecalho;
 }
 
+void debug (void){
+    char bin3;
+    char bin4;
+    FILE* bin3a = fopen("binario3.bin", "rb");
+    FILE* bin4a = fopen("binario4.bin", "rb");
+
+    while((fread(&bin3, sizeof(char), 1, bin3a)) != 0){
+        fread(&bin4, sizeof(char), 1, bin4a);
+
+        if(bin3 != bin4){
+            printf("%c %c\n", bin3, bin4);
+        }
+    }
+    fclose(bin3a);
+    fclose(bin4a);
+}
 
 
 void apagar_registro(DADOS** registro){

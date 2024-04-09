@@ -57,6 +57,7 @@ void funcionalidade1(void){
     //Inicializando o arquivo de entrada
     FILE* arquivo_in = abrir_arquivo(arquivo_in_name, "r");
     if(arquivo_in == NULL){
+        apagar_cabecalho(&cabecalho);
         return;
     }
 
@@ -74,19 +75,6 @@ void funcionalidade1(void){
 //A função fgets lê até o fim da linha ou até que o número máximo de caracteres seja lido, o que ocorrer primeiro
    while((fgets(linha, 256, arquivo_in)) != NULL){
         DADOS* registro = split_linha(arquivo_in, linha); //Função que separa os campos da linha e retorna um registro com os campos preenchidos
-
-        //Printar para conferência
-        // printf("Removido: %c\n", registro->removido);
-        // printf("Prox reg: %ld\n", registro->prox_reg);
-        // printf("Id: %d\n", registro->id);
-        // printf("Idade: %d\n", registro->idade);
-        // printf("TAM Nome: %d\n", registro->tam_Nome);
-        // printf("Nome: %s\n", registro->nome);
-        // printf("TAM nacionalidade: %d\n", registro->tam_Nacionalidade);
-        // printf("Nacionalidade: %s\n", registro->nacionalidade);
-        // printf("TAM clube: %d\n", registro->tam_Clube);
-        // printf("Clube: %s\n", registro->clube);
-        // printf("Tamanho registro: %d\n\n", registro->tamanho_registro);
         
         escrever_registro_dados(registro, arquivo_out);
         //Contador para o próximo byteoffset
@@ -96,9 +84,6 @@ void funcionalidade1(void){
         apagar_registro(&registro);
 
         count_registros++;
-
-        
-
     }
     //Fecha o arquivo de entrada
     fclose(arquivo_in);
@@ -106,28 +91,21 @@ void funcionalidade1(void){
     //Atualiza o cabeçalho do arquivo binário (status e numero de registros disponíveis)
     cabecalho->n_reg_disponiveis = count_registros;
     cabecalho->status = '1';
-    cabecalho->prox_reg_disponivel = prox_reg;
+    cabecalho->prox_reg_disponivel = prox_reg + 26;//Soma dos tamanhos dos registros de dados + tamanho do registro de cabeçalho + 1 (proximo b)
 
     fseek(arquivo_out, 0, SEEK_SET);
     escrever_cabecalho(arquivo_out, cabecalho);
     apagar_cabecalho(&cabecalho);
 
-    // //Printar cabeçalho para conferência
-    // printf("Staus: %c\n", cabecalho->status);
-    // printf("Reg disp: %d\n", cabecalho->n_reg_disponiveis);
-    // printf("Reg indisp: %d\n", cabecalho->n_reg_removidos);
-    // printf("Topo: %lld\n", cabecalho->topo);
-    // printf("Prox reg disp: %lld\n", cabecalho->prox_reg_disponivel);
-
     //Fecha o arquivo binário
     fclose(arquivo_out);
-
     //Exigência do trabalho
     binarioNaTela(arquivo_out_name);
     return;
 }
 
 void funcionalidade2(void){
+    int contador_registros = 0;
     //Tentativa de abrir o arquivo binário solicitado pelo usuário
     char nome_arquivo_binario[50];
     scanf("%s", nome_arquivo_binario);
@@ -156,15 +134,19 @@ void funcionalidade2(void){
 
         //Se o registro não foi removido, lemos os campos restantes e imprimimos na tela
         if(registro->removido != '1'){
+            contador_registros++;
             ler_registro(arquivo_bin,registro);
             print_registro(registro);
         }
         else{
-            //Se o registro foi removido, pulamos para o próximo registro
-            fseek(arquivo_bin, registro->tamanho_registro, SEEK_CUR);
+            //Se o registro foi removido, pulamos para o próximo registro (tamanho deo registro - 5 bytes [campos removido e tamanho do registro])
+            fseek(arquivo_bin, (registro->tamanho_registro - 5), SEEK_CUR);
         }
     }
 
+    if(contador_registros == 0){
+        printf("Registro inexistente.");
+    }
     //Fechamento do registro binário e liberação da memória alocada para o registro
     fclose(arquivo_bin);
     apagar_registro(&registro);

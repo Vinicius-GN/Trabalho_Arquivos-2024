@@ -14,4 +14,4 @@ funcionalidades.o: funcionalidades.c
 clean:
 	rm -f programaTrab programaTrab.o utils.o funcionalidades.o
 run:
-	valgrind --leak-check=full ./programaTrab
+	./programaTrab
