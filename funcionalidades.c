@@ -212,7 +212,7 @@ void funcionalidade3(){
             else if(strcmp(campo,"nacionalidade")==0){
                 scan_quote_string(buscas[i]->nacionalidade);
             }
-            else if(strcmp(campo,"clube")==0){
+            else if(strcmp(campo,"nomeClube")==0){
                 scan_quote_string(buscas[i]->clube);
             }
         }
@@ -276,7 +276,7 @@ void funcionalidade3(){
         }
         else{
         //Se o registro foi removido, pulamos para o próximo registro
-            fseek(arquivo_bin, registro->tamanho_registro, SEEK_CUR);
+            fseek(arquivo_bin, (registro->tamanho_registro)-5, SEEK_CUR);
         }
 
         if(feof(arquivo_bin)){
@@ -287,9 +287,10 @@ void funcionalidade3(){
     fclose(arquivo_bin);
     apagar_registro(&registro);
 
-    int count=0;
+    
     //percorre pelas buscas
     for(int i=0;i<n_buscas;i++){
+        int count=0;
         printf("Busca %d\n\n",i+1);
         BN* aux=listas[i]->ini;
         //percorre e printa as listas com os resultados das buscas
