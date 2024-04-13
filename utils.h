@@ -95,10 +95,47 @@ void scan_quote_string(char *str);
  */
 DADOS* split_linha(FILE* arquivo_in, const char* linha);
 
+/**
+ * @brief 
+ * 
+ * @param 
+ * @return void
+ */
 void apagar_lista(BL** lista);
+
+/**
+ * @brief 
+ * 
+ * @param 
+ * @return void
+ */
 void add_lista(BL* lista, DADOS* registro);
+
+/**
+ * @brief Função utilizada para apagar o registro de cabeçalho passado como parâmetro
+ * 
+ * @param **cabeçalho Ponteiro para o endereço do cabeçalho a ser apagado
+ * @return void
+ */
 void apagar_cabecalho(CABECALHO** cabecalho);
-DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro);
+
+/**
+ * @brief Função utilizada para ler e salvar as informações do registro de dados campo a campo retiradas do arquivo binário
+ * 
+ * Essa função é utilizada na funcionalidade 2 e inicializa os campos de tamanho variável de acordo com o tamanho lido do arquivo binário.
+ * Há a verificação de campos nulos e registros logicamente removidos e as alocações são devidamente desalocadas na função print registro
+ * 
+ * @param arquivo_bin Arquivo binário do qual os dados são lidos
+ * @param registro Ponteiro para o registro de dados a ser preenchido
+ * @return void
+ */
+void ler_registro(FILE* arquivo_bin, DADOS* registro);
+
+/**
+ * @brief Função utilizada para imprimir o registro de dados passado como parâmetro e desalocar os campos de tamanho variável
+ * 
+ * @param registro Ponteiro para o registro de dados a ser impresso
+ * @return void
+ */
 void print_registro(DADOS* registro);
-void debug (void);
 #endif

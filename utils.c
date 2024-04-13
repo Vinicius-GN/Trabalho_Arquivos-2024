@@ -1,7 +1,9 @@
 #include "utils.h"
 
+//############################################################################
 /* As funções definidas neste arquivo estão explicadas no arquivo "utils.h". 
-Nesse código você encontrá comentários a nível de variáveis e procedimentos.*/
+Nesse código você encontrá comentários a nível de variáveis e procedimentos.
+##############################################################################*/
 
 //Definição da estrutura do cabeçalho, seguindo a ordem recomendada nas espeficiações do trabalho
 struct registro_cabecalho{
@@ -12,6 +14,7 @@ struct registro_cabecalho{
     int n_reg_removidos;
 };
 
+//Esturura de dados utilizada para a busca de registro na funcionalidade 3
 struct busca_no{
     DADOS* registro;
     BN* prox;
@@ -36,6 +39,7 @@ struct registro_dados{
     char* clube;
     ;
 };
+
 
 FILE* abrir_arquivo(const char* nome_arquivo, const char* modo){
 
@@ -75,7 +79,7 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
     return cabecalho;
 }
 
-DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
+void ler_registro(FILE* arquivo_bin, DADOS* registro){
     //lê os campos fixos do registro
     fread(&(registro->prox_reg), sizeof(long int), 1, arquivo_bin);
 
@@ -90,7 +94,7 @@ DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
         //Aloca memória para o nome (tamanho variável)
         registro->nome = (char*) malloc((registro->tam_Nome+1) * sizeof(char)); 
         fread(registro->nome, sizeof(char), registro->tam_Nome, arquivo_bin);
-        registro->nome[registro->tam_Nome] = '\0';
+        registro->nome[registro->tam_Nome] = '\0'; //Adição do \0 no final da string para evitar lixo
     }
 
     fread(&(registro->tam_Nacionalidade), sizeof(int), 1, arquivo_bin);
@@ -99,7 +103,7 @@ DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
     if(registro->tam_Nacionalidade != 0){
         registro->nacionalidade = (char*) malloc((registro->tam_Nacionalidade+1) * sizeof(char)); 
         fread(registro->nacionalidade, sizeof(char), registro->tam_Nacionalidade, arquivo_bin);
-        registro->nacionalidade[registro->tam_Nacionalidade]='\0';
+        registro->nacionalidade[registro->tam_Nacionalidade]='\0'; //Adição do \0 no final da string para evitar lixo
     }
 
         fread(&(registro->tam_Clube), sizeof(int), 1, arquivo_bin);
@@ -108,15 +112,13 @@ DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
     if(registro->tam_Clube != 0){
         registro->clube = (char*) malloc((registro->tam_Clube+1) * sizeof(char)); 
         fread(registro->clube, sizeof(char), registro->tam_Clube, arquivo_bin);
-        registro->clube[registro->tam_Clube] = '\0';
+        registro->clube[registro->tam_Clube] = '\0'; //Adição do \0 no final da string para evitar lixo
+ 
+        //Os campos de tamanho variavel são alocados, mas são liberados no final da execução da função "print registro"
     }
-
-
-        
-
 }
 void print_registro(DADOS* registro){
-    //printa os campos requisitados do registro, caso não forem nulos 
+    //printa os campos requisitados do registro e trata os campos nulos de dados
     if(registro->tam_Nome == 0){
                 printf("Nome do Jogador: SEM DADO\n");
             }
@@ -277,24 +279,6 @@ CABECALHO* init_arquivo_binario(FILE* arquivo){
     return cabecalho;
 }
 
-void debug (void){
-    char bin3;
-    char bin4;
-    FILE* bin3a = fopen("binario3.bin", "rb");
-    FILE* bin4a = fopen("binario4.bin", "rb");
-
-    while((fread(&bin3, sizeof(char), 1, bin3a)) != 0){
-        fread(&bin4, sizeof(char), 1, bin4a);
-
-        if(bin3 != bin4){
-            printf("%c %c\n", bin3, bin4);
-        }
-    }
-    fclose(bin3a);
-    fclose(bin4a);
-}
-
-
 void apagar_registro(DADOS** registro){
 
     //Leberação da memória alocada para os campos de tamanho variável e para o registro em si
@@ -321,7 +305,6 @@ void apagar_registro(DADOS** registro){
 }
 
 void apagar_cabecalho(CABECALHO** cabecalho){
-
     //Libera a memória alocada para o cabeçalho
     if(*cabecalho != NULL){
         free(*cabecalho);
@@ -425,7 +408,7 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
             contador_campo_var = 0;
         pos++;//Passa pela vírgula
 
-        //Separação dos campos de tam variável:
+        //Separação dos campos de tamanho variável:
 
         //Leitura do nome do jogador usando a string auxiliar
         for(; linha[pos] != ','; pos++){
