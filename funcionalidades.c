@@ -156,7 +156,7 @@ void funcionalidade2(void){
 
 void funcionalidade3(){
     char nome_arquivo_binario[50],campo[20];
-    int  n_buscas,n_campos,add = 1;
+    int  n_buscas,n_campos,add = 1, bc= 0;
     //recebe o nome e abre o aquivo
     scanf("%s", nome_arquivo_binario);
     FILE* arquivo_bin = abrir_arquivo(nome_arquivo_binario, "rb");
@@ -173,6 +173,8 @@ void funcionalidade3(){
     CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
     //aloca o vetor de registros de parâmetros das buscas
     DADOS** buscas = (DADOS**) malloc(n_buscas*sizeof(DADOS*));
+    //aloca e incializa um vetor responsável por checar se a busca deve ser realizada ou não
+    int* breakcontrol = (int*) calloc (n_buscas,sizeof(int));
     //aloca o vetor de listas de resultados das buscas
     BL** listas = (BL**) malloc(n_buscas*sizeof(BL*));
     for(int i=0;i<n_buscas;i++){
@@ -223,12 +225,19 @@ void funcionalidade3(){
         if(registro->removido != '1'){
             ler_registro(arquivo_bin,registro);
             for(int i=0;i<n_buscas;i++){
+                if(breakcontrol[i]==1){
+                    continue;
+                }
                 add=1;
+                
                 //desclassifica o registro se ele não cumprir os parâmetros da busca
                 //o parâmetro só é levado em conta se ele não estiver vazio
                 if(buscas[i]->id!=-1){
                     if(registro->id != buscas[i]->id){
                         add=0;
+                    }
+                    else{
+                        bc=1;
                     }
                 }
                 if(buscas[i]->idade!=-1){
@@ -257,6 +266,9 @@ void funcionalidade3(){
                 //caso satisfaça os parâmetros insere uma cópia do registro auxiliar na lista de resultados
                 if(add==1){
                     add_lista(listas[i],registro);
+                    if(bc==1){
+                        breakcontrol[i]=1;
+                    }
                 }
                
             }
@@ -265,14 +277,14 @@ void funcionalidade3(){
                     free(registro->nome);
                     registro->nome = NULL;
                 }
-                if(registro->tam_Nome!=0){
-                    free(registro->nome);
-                    registro->nome = NULL;
-                }
-                if(registro->tam_Nome!=0){
-                    free(registro->nome);
-                    registro->nome = NULL;
-                }   
+            if(registro->tam_Nacionalidade!=0){
+                free(registro->nacionalidade);
+                registro->nacionalidade = NULL;
+            }
+                if(registro->tam_Clube!=0){
+                free(registro->clube);
+                registro->clube = NULL;
+            }   
         }
         else{
         //Se o registro foi removido, pulamos para o próximo registro

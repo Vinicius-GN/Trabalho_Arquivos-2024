@@ -75,7 +75,7 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
     return cabecalho;
 }
 
-DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro){
+void ler_registro(FILE* arquivo_bin, DADOS* registro){
     //lê os campos fixos do registro
     fread(&(registro->prox_reg), sizeof(long int), 1, arquivo_bin);
 
@@ -188,7 +188,7 @@ void apagar_lista(BL** lista){
     //inicializo as variavéis usadas para percorrer a lista
     BN *node, *ant;
     ant = (*lista)->ini;
-    //se assegura de que a lista não está vazia para evitar segfaukt
+    //se assegura de que a lista não está vazia para evitar segfault
     if(ant!=NULL){
         node=ant->prox;
     }
@@ -297,7 +297,7 @@ void debug (void){
 
 void apagar_registro(DADOS** registro){
 
-    //Leberação da memória alocada para os campos de tamanho variável e para o registro em si
+    //Liberação da memória alocada para os campos de tamanho variável e para o registro em si
     //O restante dos campos são de tamanho fixo, então são liberados junto com o registro
     if((*registro)->nome != NULL){
         free((*registro)->nome);

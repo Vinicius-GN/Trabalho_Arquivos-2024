@@ -33,13 +33,15 @@ void funcionalidade1(void);
 void funcionalidade2(void);
 
 /**
- * @brief 
+ * @brief Faz n buscas no arquivo binário e escreve os registros correspondentes na saída padrão
  * 
+ * A funcionalidade 3 ou também referida no arquivo de descrição do trabalho como "SELECT" com consideração da clausula "WHERE" é utilizada
+ * para processar um arquivo binário, percorrendo todos os registros e imprimindo aqueles que correspondem aos paramêtros passados na busca.
+ * Os campos nulos são tratados de forma correta, os registros marcados como logicamente removidos não são exibidos e as buscas de parâmetros
+ * únicos são paradas após encontrar um registro correspondente.
  * 
- * 
- * 
- * @param 
- * @return
+ * @param void
+ * @return void
  */
 void funcionalidade3(void);
 

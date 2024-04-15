@@ -95,10 +95,54 @@ void scan_quote_string(char *str);
  */
 DADOS* split_linha(FILE* arquivo_in, const char* linha);
 
+/**
+ * @brief recebe uma lista encadeada e libera todos nós assim como a lista em si
+ * 
+ * @param lista endereço do ponteiro da lista a ser liberada 
+ * @return void
+*/
 void apagar_lista(BL** lista);
+
+/**
+ * @brief recebe o endereço de um registro e adiciona ele a lista
+ * 
+ * Essa função aloca um nó e o inicializa contendo o registro passado, após isso o adiciona ao final da lista e
+ * atualiza as variáveis da lista.
+ * 
+ * @param lista ponteiro para a lista em que o registro será adicionado
+ * @param registro ponteiro para o registro que será adicionado na lista
+ * @return void
+*/
 void add_lista(BL* lista, DADOS* registro);
+
+/**
+ * @brief recebe o endereço do ponteiro da struct que guarda o cabeçalho e libera a struct
+ * 
+ * @param cabecalho endereço do ponteiro do cabeçalho
+ * @return void
+*/
 void apagar_cabecalho(CABECALHO** cabecalho);
-DADOS* ler_registro(FILE* arquivo_bin, DADOS* registro);
+
+/**
+ * @brief lê um registro do arquivo binário passado como parâmetro e guarda os campos no registro passado
+ * 
+ * Essa função lê um registro do arquivo binário, campo a campo, alocando memória para os campos de tamanho variável.
+ * 
+ * @param arquivo_bin ponteiro do arquivo de onde o registro será lido
+ * @param registro ponteiro da struct aonde os dados lidos serão guardados
+ * @return void
+*/
+void ler_registro(FILE* arquivo_bin, DADOS* registro);
+
+/**
+ * @brief printa na tela os dados do registro conforme pedido no arquivo de descrição do trabalho
+ * 
+ * essa função printa o registro da maneira especificada no arquivo de descrição do trabalho, mas também libera a memória
+ * dos campos variáveis do registro.
+ * 
+ * @param registro ponteiro da struct do registro a ser printado
+ * @return void
+*/
 void print_registro(DADOS* registro);
 void debug (void);
 #endif
