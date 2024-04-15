@@ -144,5 +144,4 @@ void ler_registro(FILE* arquivo_bin, DADOS* registro);
  * @return void
 */
 void print_registro(DADOS* registro);
-void debug (void);
 #endif

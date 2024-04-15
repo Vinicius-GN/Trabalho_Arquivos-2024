@@ -4,6 +4,9 @@
 Nesse código você encontrá comentários a nível de variáveis e procedimentos.*/
 
 //Definição da estrutura do cabeçalho, seguindo a ordem recomendada nas espeficiações do trabalho
+
+/*(As estruturas de dados foram definidas também no arquivo utils.c pois o conceito de TAD impede que, 
+ com o include do utils.h, as estruturas sejam acessadas diretamente peas funcionalidades definidas)*/
 struct registro_cabecalho{
     char status;
     long long int topo;
@@ -12,6 +15,7 @@ struct registro_cabecalho{
     int n_reg_removidos;
 };
 
+//Esturura de dados utilizada para a busca de registro na funcionalidade 3
 struct busca_no{
     DADOS* registro;
     BN* prox;
@@ -71,41 +75,50 @@ void funcionalidade1(void){
     fgets(linha, 256, arquivo_in); 
     linha[strcspn(linha, "\n")] = 0; //Remove o \n da string (poderia ficar salva no ultimo campo do registro)
 
-//// PEGAR LINHA A LINHA E ESCREVER NO ARQUIVO BINÁRIO ////
-//A função fgets lê até o fim da linha ou até que o número máximo de caracteres seja lido, o que ocorrer primeiro
+//// LOOP PARA PEGAR LINHA A LINHA E ESCREVER NO ARQUIVO BINÁRIO ////
+//A função fgets lê até o fim da linha ou até que o número máximo de caracteres seja lido, o que ocorrer primeiro (nesse caso, pega a linha toda do arquivo csv)
    while((fgets(linha, 256, arquivo_in)) != NULL){
         DADOS* registro = split_linha(arquivo_in, linha); //Função que separa os campos da linha e retorna um registro com os campos preenchidos
         
+        //Função que escreve o registro no arquivo binário campo a campo
         escrever_registro_dados(registro, arquivo_out);
+
         //Contador para o próximo byteoffset
         prox_reg += registro->tamanho_registro;
 
         //Libera a memória alocada para o registro
         apagar_registro(&registro);
 
+        //Incrementa o contador de registros existentes
         count_registros++;
     }
     //Fecha o arquivo de entrada
     fclose(arquivo_in);
 
-    //Atualiza o cabeçalho do arquivo binário (status e numero de registros disponíveis)
+    //Atualiza o cabeçalho do arquivo binário (status, numero de registros disponíveis e proximo registro disponível/byteoffset)
     cabecalho->n_reg_disponiveis = count_registros;
     cabecalho->status = '1';
-    cabecalho->prox_reg_disponivel = prox_reg + 26;//Soma dos tamanhos dos registros de dados + tamanho do registro de cabeçalho + 1 (proximo b)
+    cabecalho->prox_reg_disponivel = prox_reg + 25;//Soma dos tamanhos dos registros de dados + tamanho do registro de cabeçalho)
 
+    //Volta ao inicio do arquivo binário e reescreve o cabeçalho atualizado
     fseek(arquivo_out, 0, SEEK_SET);
-    escrever_cabecalho(arquivo_out, cabecalho);
+    escrever_cabecalho(arquivo_out, cabecalho); //Função que escreve o cabeçalho no arquivo binário campo a campo
+
+    //Libera a memória alocada para o cabeçalho
     apagar_cabecalho(&cabecalho);
 
     //Fecha o arquivo binário
     fclose(arquivo_out);
+
     //Exigência do trabalho
     binarioNaTela(arquivo_out_name);
     return;
 }
 
 void funcionalidade2(void){
+    //Contador para salvar a quantidade de registros lidos e indicar quando não há registros
     int contador_registros = 0;
+
     //Tentativa de abrir o arquivo binário solicitado pelo usuário
     char nome_arquivo_binario[50];
     scanf("%s", nome_arquivo_binario);
@@ -116,10 +129,9 @@ void funcionalidade2(void){
 
     //Lemos os campos do cabeçalho para passar pelos dados (outra opção seria usar o fseek com o tamanho do registro de cabeçalho)
     fseek(arquivo_bin, 0, SEEK_SET);
-
     CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
 
-    //Alocação do registro de dados
+    //Alocação do registro de dados e tratamento de exceções caso a alocação falhe
     DADOS* registro = (DADOS*) malloc(sizeof(DADOS));
     if (registro == NULL){
         printf("Erro ao alocar memória para o registro\n");
@@ -127,33 +139,37 @@ void funcionalidade2(void){
         exit(1);
     }
 
-    ////////// LEITURA DOS REGISTROS DO ARQUIVO BINÀRIO E IMPRESSÃO//////////
+    ////////// LOOP PARA LEITURA DOS REGISTROS DO ARQUIVO BINÀRIO E IMPRESSÃO //////////
+    /*Lemos ambos os campos de removido e tamanho para verificar se o registro foi removido 
+      e usamos um fseek para pular para o próximo registro caso o atual tenha sido removido*/
+
     while(fread(&(registro->removido), sizeof(char), 1, arquivo_bin) != 0){
 
         fread(&(registro->tamanho_registro), sizeof(int), 1, arquivo_bin);
 
         //Se o registro não foi removido, lemos os campos restantes e imprimimos na tela
         if(registro->removido != '1'){
-            contador_registros++;
-            ler_registro(arquivo_bin,registro);
-            print_registro(registro);
+            contador_registros++; //Incrementa o número de registros lidos
+            ler_registro(arquivo_bin,registro); //Função que lê o registro campo a campo
+            print_registro(registro); //Função que imprime o registro na tela
         }
         else{
             //Se o registro foi removido, pulamos para o próximo registro (tamanho deo registro - 5 bytes [campos removido e tamanho do registro])
             fseek(arquivo_bin, (registro->tamanho_registro - 5), SEEK_CUR);
         }
     }
-
+    //Se não houver registros, imprimimos a mensagem de registro inexistente
     if(contador_registros == 0){
-        printf("Registro inexistente.");
+        printf("Registro inexistente.\n\n");
     }
-    //Fechamento do registro binário e liberação da memória alocada para o registro
+    //Fechamento do arquivo binário e liberação da memória alocada para os registros
     fclose(arquivo_bin);
     apagar_registro(&registro);
     apagar_cabecalho(&cabecalho);
     return;
 }
 
+//Função que realiza a busca de registros no arquivo binário baseado em parâmetros passados pelo usuário
 void funcionalidade3(){
     char nome_arquivo_binario[50],campo[20];
     int  n_buscas,n_campos,add = 1, bc= 0;
