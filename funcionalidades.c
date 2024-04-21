@@ -339,6 +339,7 @@ void funcionalidade3(){
     buscas=NULL;
     free(listas);
     listas=NULL;
-
+    free(breakcontrol);
+    breakcontrol=NULL;
     return;
 }
