@@ -245,6 +245,7 @@ void funcionalidade3(){
                     continue;
                 }
                 add=1;
+                bc=0;
                 
                 //desclassifica o registro se ele não cumprir os parâmetros da busca
                 //o parâmetro só é levado em conta se ele não estiver vazio
