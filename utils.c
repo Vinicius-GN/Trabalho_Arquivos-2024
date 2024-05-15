@@ -483,3 +483,19 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
         registro->tamanho_registro = contador_tamanho;   
         return registro;
     }
+
+    char get_status(CABECALHO* cabecalho){
+        if(cabecalho == NULL){
+            printf("Erro ao acessar o status do cabeçalho\n");
+            return '0';
+        }
+        return cabecalho->status;
+    }
+
+    int getID(DADOS* registro){
+        if(registro == NULL){
+            printf("Erro ao acessar o ID do registro\n");
+            return -1;
+        }
+        return registro->id;
+    }

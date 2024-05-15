@@ -1,4 +1,4 @@
-#include "funcionalidades.h"
+#include "funcionalidades_intr.h"
 
 /* As funções definidas neste arquivo estão explicadas no arquivo "utils.h". 
 Nesse código você encontrá comentários a nível de variáveis e procedimentos.*/
@@ -139,8 +139,7 @@ void funcionalidade2(void){
         exit(1);
     }
 
-    ////////// LOOP PARA LEITURA DOS REGISTROS DO ARQUIVO BINÀRIO E IMPRESSÃO //////////
-    /*Lemos ambos os campos de removido e tamanho para verificar se o registro foi removido 
+      /*Lemos ambos os campos de removido e tamanho para verificar se o registro foi removido 
       e usamos um fseek para pular para o próximo registro caso o atual tenha sido removido*/
 
     while(fread(&(registro->removido), sizeof(char), 1, arquivo_bin) != 0){
@@ -157,7 +156,8 @@ void funcionalidade2(void){
             //Se o registro foi removido, pulamos para o próximo registro (tamanho deo registro - 5 bytes [campos removido e tamanho do registro])
             fseek(arquivo_bin, (registro->tamanho_registro - 5), SEEK_CUR);
         }
-    }
+    }////////// LOOP PARA LEITURA DOS REGISTROS DO ARQUIVO BINÀRIO E IMPRESSÃO //////////
+  
     //Se não houver registros, imprimimos a mensagem de registro inexistente
     if(contador_registros == 0){
         printf("Registro inexistente.\n\n");

@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "funcionalidades.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "funcionalidades_intr.h": "c",
+        "bitset": "c",
+        "chrono": "c",
+        "algorithm": "c"
     }
 }

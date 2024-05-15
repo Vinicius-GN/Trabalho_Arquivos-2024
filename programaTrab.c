@@ -1,4 +1,5 @@
-#include "funcionalidades.h"
+#include "funcionalidades_intr.h"
+#include "index.h"
 
 /* Trabalho introdutório da disciplina de Organização de Arquivos 
 
@@ -24,6 +25,12 @@ void interface(int command){
         funcionalidade3();
         break;
 
+    case 4:
+        funcionalidade4();
+
+    case 5:
+        funcionalidade5();
+        
     default:
         break;
     }
@@ -33,9 +40,10 @@ void interface(int command){
 
 // Função principal para chamada da interface
 int main(){
-    int command;
-    scanf("%d", &command);
-    interface(command);
+    // int command;
+    // scanf("%d", &command);
+    // interface(command);
+    teste_vetor();
 
     return 0;
 }
