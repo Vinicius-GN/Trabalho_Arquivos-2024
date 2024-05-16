@@ -40,10 +40,9 @@ void interface(int command){
 
 // Função principal para chamada da interface
 int main(){
-    // int command;
-    // scanf("%d", &command);
-    // interface(command);
-    teste_vetor();
+    int command;
+    scanf("%d", &command);
+    interface(command);
 
     return 0;
 }
