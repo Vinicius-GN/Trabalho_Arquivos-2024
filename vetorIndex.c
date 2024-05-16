@@ -61,7 +61,7 @@ void remover_ordenado(DADOS_INDEX* vetor, DADOS_INDEX*registro, int inicio, int 
     }
 }
 
-void apagar_vetor(DADOS_INDEX**vetor, int tamanho){
+void apagar_vetor(DADOS_INDEX**vetor){
     free(*vetor);
 }
 

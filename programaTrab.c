@@ -27,9 +27,15 @@ void interface(int command){
 
     case 4:
         funcionalidade4();
+        break;
 
     case 5:
         funcionalidade5();
+        break;
+
+    case 6:
+        funcionalidade6();
+        break;
         
     default:
         break;

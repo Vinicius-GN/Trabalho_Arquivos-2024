@@ -36,7 +36,6 @@ void funcionalidade5(void);
  * @return 
  */
 void funcionalidade6(void);
-void teste_vetor();
 
 
 #endif
