@@ -3,6 +3,7 @@
 
 #include "utils.h" 
 #include "vetorIndex.h"
+#include "utils_trab1.h"
 
 //Struct definitions for index file
 typedef struct registro_cabecalho_index CABECALHO_INDEX;

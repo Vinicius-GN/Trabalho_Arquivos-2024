@@ -33,6 +33,13 @@ void escrever_registro_index(DADOS_INDEX *registro, FILE *arquivo)
     fwrite(&registro->byteoffset, sizeof(long long int), 1, arquivo);
 }
 
+void escrever_vetor_index(DADOS_INDEX* vetor_index, FILE* arquivo_index){
+    for (int i = 0; i < count_reg; i++)
+    {
+        escrever_registro_index(&vetor_index[i], arquivo_index);
+    }
+}
+
 // Função para criar um registro de index do arquivo de dados
 DADOS_INDEX* create_index(FILE *arquivo_index, FILE *arquivo_dados)
 {
@@ -70,19 +77,6 @@ DADOS_INDEX* create_index(FILE *arquivo_index, FILE *arquivo_dados)
         {
             // Se o registro foi removido, pulamos para o próximo registro (tamanho deo registro - 5 bytes [campos removido e tamanho do registro])
             fseek(arquivo_dados, (tamanho_reg - 5), SEEK_CUR);
-        }
-    }
-
-    for (int i = 0; i < count_reg; i++)
-    {
-        if (registro_index->chave == -1)
-        {
-            printf("Registro não existe\n");
-            continue;
-        }
-        else
-        {
-            escrever_registro_index(&vetor_index[i], arquivo_index);
         }
     }
 
@@ -137,7 +131,8 @@ void funcionalidade4()
 
     // Construção do arquivo de index
     DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); //A função create index retorna um vetor de registros de index para que possamos utilizada em outras funcionalidades (5 e 6)
-    
+    escrever_vetor_index(vetor_index, arquivo_index);
+
     // Reescrever status do arquivo de index para 1
     fseek(arquivo_index, 0, SEEK_SET); // Resetar o ponteiro do arquivo para o início
 
@@ -194,7 +189,7 @@ void funcionalidade5(void)
         return;
     }
 
-    // Criação do arquivo de index 
+    // Criação do arquivo de index (não escreve na memória ainda)
     DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); // Puxa o arquivo de index para a memória principal por meio de um vetor de registros
 
     for (int i = 0; i < num_remover; i++)
@@ -206,6 +201,10 @@ void funcionalidade5(void)
         
     }
 
+    //Escrever os registros no arquivo de indice
+    escrever_vetor_index(vetor_index, arquivo_index);
+
+    //Reescrever status do arquivo de indice aqui
     fseek(arquivo_index, 0, SEEK_SET); // Resetar o ponteiro do arquivo para o início
     CABECALHO_INDEX *registro_cabecalho_index = (CABECALHO_INDEX *)malloc(sizeof(CABECALHO_INDEX)); //Não é necessario alocar e passar o registro,
     //mas fica mais claro o que estamos fazendo do que só escrever um char no arquivo de indice.
@@ -261,20 +260,24 @@ void funcionalidade6(void)
         return;
     }
 
-    // Criação do arquivo de index
+    // Criação do arquivo de index (não escreve no arquivo ainda)
     DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); // Puxa o arquivo de index para a memória principal por meio de um vetor de registros
     
-    imprimir_vetor(vetor_index, count_reg);
+    //Alocando as estruturas de dados a serem utilizadas.
     DADOS_INDEX* registro_index = (DADOS_INDEX*)malloc(sizeof(DADOS_INDEX));
-    DADOS* registro_dados = (DADOS*)malloc(sizeof(DADOS_INDEX));
 
     for (int i = 0; i < num_insertons; i++)
     {
         // Alocar e ler o registro de dados do input
+        DADOS* registro_dados = ler_input_dados();
 
         // LÓGICA DE REAPROVEITAMENTO DE ESPAÇO
-        if (1)
-        { // get_nRemovidos(registro_cabecalho_dados) == 0 ){ //oU TOPO == -1
+        if (getTopo(registro_cabecalho_dados) == -1 && getnRemovidos(registro_cabecalho_dados) == 0) //Or ou And????
+        {
+            //Verefica que o item que está sendo ordenado já existe no arquivo de indice
+            if(!busca_binaria_index(vetor_index, getID(registro_cabecalho_dados), 0, count_reg)){
+
+            
             // Se não houver registros logicamente removidos, inserir no fim do arquivo:
 
             // Inserir reg index no vetor de registros (provavelmten vai ter que shiftar o vetor pra inserir ordenado) -> VERIFICAR SE ESSE CARA JÁ EXISTE NO VETOR E, SE SIM, NÃO INSERIR
@@ -284,6 +287,9 @@ void funcionalidade6(void)
 
             // Att o cabelçalho do arq de dados e reescrever ele(n registro depóniveis, prox_reg_disponivel)
             //Fazer count++
+            count_reg++;
+            }
+            
         }
         else
         {
@@ -303,16 +309,21 @@ void funcionalidade6(void)
 
             // Se não achar um que caiba: Insere no fim seguindo o algoritmo acima definido
         }
+        //apagar_registro(&registro_dados);//TA ERRADOOOOOOOOOOO
     }
 
+    //Escrever os registros no arquivo de indice
+    escrever_vetor_index(vetor_index, arquivo_index);
+
+    //Reescrever status do arquivo de indice aqui
     fseek(arquivo_index, 0, SEEK_SET); // Resetar o ponteiro do arquivo para o início
-    CABECALHO_INDEX *registro_cabecalho_index = (CABECALHO_INDEX *)malloc(sizeof(CABECALHO_INDEX));
+    CABECALHO_INDEX *registro_cabecalho_index = (CABECALHO_INDEX *)malloc(sizeof(CABECALHO_INDEX)); //Não é necessario alocar e passar o registro,
+    //mas fica mais claro o que estamos fazendo do que só escrever um char no arquivo de indice.
     set_arquivo_index('1', registro_cabecalho_index, arquivo_index);
 
     // Liberar memória
     apagar_vetor(&vetor_index);
     free(registro_cabecalho_dados);
-    free(registro_dados);
     free(registro_index);
     fclose(arquivo_dados);
     fclose(arquivo_index);

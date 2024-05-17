@@ -240,6 +240,11 @@ DADOS* init_registro_dados(){
 
     //Inicializa um registro de dados com os campos preenchidos assim como recomendado nas especificações 
     DADOS* registro = (DADOS*)malloc(sizeof(DADOS));
+    if(registro == NULL){
+        printf("Erro ao alocar memória para o registro\n");
+        exit(1);
+    }
+    
     registro->removido = '0';
     registro->tamanho_registro = 0;
     registro->prox_reg = -1;
@@ -295,8 +300,6 @@ void apagar_registro(DADOS** registro){
         free((*registro)->clube);
         (*registro)->clube = NULL;
     }
-
-
     if(*registro != NULL){
         free(*registro);
         *registro = NULL;
@@ -380,7 +383,6 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
 
         //Variável que acumulará o tamanho dos campos de tamanho variável para a alocação e contagem do tamanho do registro
         int contador_campo_var = 0;
-
 
         int idade = 0, id = 0, pos = 0;
 
@@ -484,18 +486,3 @@ DADOS* split_linha(FILE* arquivo_in, const char* linha){
         return registro;
     }
 
-    char get_status(CABECALHO* cabecalho){
-        if(cabecalho == NULL){
-            printf("Erro ao acessar o status do cabeçalho\n");
-            return '0';
-        }
-        return cabecalho->status;
-    }
-
-    int getID(DADOS* registro){
-        if(registro == NULL){
-            printf("Erro ao acessar o ID do registro\n");
-            return -1;
-        }
-        return registro->id;
-    }

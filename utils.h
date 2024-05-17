@@ -152,7 +152,4 @@ void print_registro(DADOS* registro);
  * @return 
 */
 char get_status(CABECALHO* cabecalho);
-int getID(DADOS* registro);
-
-void debug (void);
 #endif
