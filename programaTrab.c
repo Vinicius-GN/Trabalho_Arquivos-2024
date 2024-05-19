@@ -1,5 +1,5 @@
 #include "funcionalidades_intr.h"
-#include "index.h"
+#include "funcionalidades_trab1.h"
 
 /* Trabalho introdutório da disciplina de Organização de Arquivos 
 

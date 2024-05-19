@@ -1,7 +1,7 @@
 #ifndef VETORINDEX_H
     #define VETORINDEX_H
 
-#include "index.h"
+#include "funcionalidades_trab1.h"
 #include "utils.h" 
 #include <stdio.h>
 

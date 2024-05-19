@@ -5,6 +5,7 @@
         "funcionalidades_intr.h": "c",
         "bitset": "c",
         "chrono": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "funcionalidades_trab1.h": "c"
     }
 }

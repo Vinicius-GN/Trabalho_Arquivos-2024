@@ -1,5 +1,5 @@
-#ifndef INDEX_H
-    #define INDEX_H
+#ifndef FUNCIONALIDADES_TRAB1_H
+    #define FUNCIONALIDADES_TRAB1_H
 
 #include "utils.h" 
 #include "vetorIndex.h"
@@ -37,6 +37,8 @@ void funcionalidade5(void);
  * @return 
  */
 void funcionalidade6(void);
+
+int incrementar_count_reg(void);
 
 
 #endif

@@ -29,7 +29,7 @@ struct busca_lista{
 struct registro_dados{
     char removido;
     int tamanho_registro;
-    long int prox_reg;
+    long long int prox_reg;
     int id;
     int idade;
     int tam_Nome;
@@ -44,7 +44,7 @@ struct registro_dados{
 void funcionalidade1(void){
     //Contador do número de registros lidos
     int count_registros = 0;
-    long int prox_reg = 0;
+    long long int prox_reg = 0;
 
     //Leitura dos nomes dos arquivos
     char arquivo_in_name[50];

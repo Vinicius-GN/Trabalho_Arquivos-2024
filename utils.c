@@ -28,7 +28,7 @@ struct busca_lista{
 struct registro_dados{
     char removido;
     int tamanho_registro;
-    long int prox_reg;
+    long long int prox_reg;
     int id;
     int idade;
     int tam_Nome;
@@ -81,7 +81,7 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
 
 void ler_registro(FILE* arquivo_bin, DADOS* registro){
     //lê os campos fixos do registro
-    fread(&(registro->prox_reg), sizeof(long int), 1, arquivo_bin);
+    fread(&(registro->prox_reg), sizeof(long long int), 1, arquivo_bin);
 
     fread(&(registro->id), sizeof(int), 1, arquivo_bin);
 
@@ -215,7 +215,7 @@ void escrever_registro_dados(DADOS* registro, FILE* arquivo){
     //Escreve os registros de dados no arquivo binário campo a campo, assim como solicitado
     fwrite(&registro->removido, sizeof(char), 1, arquivo);
     fwrite(&registro->tamanho_registro, sizeof(int), 1, arquivo);
-    fwrite(&registro->prox_reg, sizeof(long int), 1, arquivo);
+    fwrite(&registro->prox_reg, sizeof(long long int), 1, arquivo);
     fwrite(&registro->id, sizeof(int), 1, arquivo);
     fwrite(&registro->idade, sizeof(int), 1, arquivo);
     
@@ -304,7 +304,6 @@ void apagar_registro(DADOS** registro){
         free(*registro);
         *registro = NULL;
     }
-
 }
 
 void apagar_cabecalho(CABECALHO** cabecalho){
