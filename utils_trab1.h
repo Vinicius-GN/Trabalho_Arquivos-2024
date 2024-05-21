@@ -67,28 +67,39 @@ int getnRegDisponiveis(CABECALHO* registro);
 long long int getProxRegDisponivel(CABECALHO* registro);
 
 /**
- * @brief Altera o valor do campo "n_registros_disponiveis" do registro de cabeçalho do arquivo de dados.
+ * @brief Altera o valor do campo "n_reg_disponiveis" do registro de cabeçalho do arquivo de dados.
  * 
- * @param 
- * @return 
+ * @param registro Ponteiro para o registro de cabeçalho cujo "n_reg_disponiveis" é alterado.
+ * @param n Novo valor do campo "n_reg_disponiveis".
+ * @return void 
  */
 void set_nRegDisponiveis(CABECALHO* registro, int n);
 
 /**
- * @brief 
+ * @brief Altera o valor do campo "n_reg_removidos" do registro de cabeçalho do arquivo de dados.
  * 
- * @param 
- * @return 
+ * @param registro Ponteiro para o registro de cabeçalho cujo "n_reg_removidos" é alterado.
+ * @param n Novo valor do campo "n_reg_removidos".
+ * @return void
  */
 void set_nRegRemovidos(CABECALHO* registro, int n);
 
 /**
- * @brief 
+ * @brief Altera o valor do campo "topo" do registro de cabeçalho do arquivo de dados.
  * 
- * @param 
- * @return 
+ * @param registro Ponteiro para o registro de cabeçalho cujo "topo" é alterado.
+ * @param n Novo valor do campo "topo".
+ * @return void 
  */
 void set_topo(CABECALHO* registro, int n);
+
+/**
+ * @brief Altera o valor do campo "prox_reg_disponivel" (byteoffset) do registro de cabeçalho do arquivo de dados.
+ * 
+ * @param registro Ponteiro para o registro de cabeçalho cujo "prox_reg_disponivel" é alterado.
+ * @param n Novo valor do campo "prox_reg_disponivel".
+ * @return void
+*/
 void setProxRegDisponivel(CABECALHO* registro, long long int n);
 
 /**
