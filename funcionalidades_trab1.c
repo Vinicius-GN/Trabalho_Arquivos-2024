@@ -1,18 +1,28 @@
+//############################################################################
+/* As funções definidas neste arquivo estão explicadas no arquivo "funcionalidades-trab1.h". 
+Nesse código você encontrá comentários a nível de variáveis e procedimentos.
+##############################################################################*/
+
+/*MODULARIZAR: TODO o inicio de abertura de arquivo e final na liveração de memória, criação e cópia do vetor de index
+  Melhorar: TIRAR REPETIÇÃO DAS STRUCTS DEFINIDAS*/
+
 #include "funcionalidades_trab1.h"
+
+// Variável de controle do número de registros no vetor de index
 int count_reg = 0;
 
-struct registro_cabecalho_index
-{
+//Definição da estrutura do registro de cabeçalho do arquivo de índice
+struct registro_cabecalho_index{
     char status;
 };
 
-struct registro_dados_index
-{
+//Definição da estrutura do registro de dados do arquivo de índice
+struct registro_dados_index{
     int chave;
     long long int byteoffset;
 };
 
-//Definição da estrutura do registro de dados
+//Definição da estrutura do registro de dados do arquivo de dados para ser acessado diretamente.
 struct registro_dados{
     char removido;
     int tamanho_registro;
@@ -28,27 +38,19 @@ struct registro_dados{
     ;
 };
 
+// Incrementar a variável de controle do número de registros no vetor de index
 int incrementar_count_reg(){
     count_reg++;
     return count_reg;
 }
 
-// Função para setar o status do arquivo de index
-void set_arquivo_index(char status, CABECALHO_INDEX *cabecalho, FILE *arquivo)
-{
-    cabecalho->status = status;
-    fwrite(&cabecalho->status, sizeof(char), 1, arquivo);
+// Pegar o número de registros no vetor de index
+int get_count_reg(){
+    return count_reg;
 }
 
-// Verificar na inserção e remoção se o arquivo de index está comprometido
-void check_arquivo_index(CABECALHO_INDEX *cabecalho, FILE *arquivo)
-{
-    fseek(arquivo, 0, SEEK_SET);
-    fread(&cabecalho->status, sizeof(char), 1, arquivo);
-}
-
-void liberar_memoria(CABECALHO_INDEX **registro_cabecalho_index, DADOS_INDEX **registro_index, DADOS **registro_dados)
-{
+// Função para liberar a memória alocada para os registros de index e dados
+void liberar_memoria(CABECALHO_INDEX **registro_cabecalho_index, DADOS_INDEX **registro_index, DADOS **registro_dados){
     if(*registro_cabecalho_index != NULL)
         free(*registro_cabecalho_index);
 
@@ -56,19 +58,6 @@ void liberar_memoria(CABECALHO_INDEX **registro_cabecalho_index, DADOS_INDEX **r
         free(*registro_index);
 
     apagar_registro(registro_dados);
-}
-// Função para escrever um registro de index no arquivo
-void escrever_registro_index(DADOS_INDEX *registro, FILE *arquivo)
-{
-    fwrite(&registro->chave, sizeof(int), 1, arquivo);
-    fwrite(&registro->byteoffset, sizeof(long long int), 1, arquivo);
-}
-
-void escrever_vetor_index(DADOS_INDEX* vetor_index, FILE* arquivo_index){
-    for (int i = 0; i < count_reg; i++)
-    {
-        escrever_registro_index(&vetor_index[i], arquivo_index);
-    }
 }
 
 // Função para criar um registro de index do arquivo de dados
@@ -86,12 +75,13 @@ DADOS_INDEX* create_index(FILE *arquivo_index, FILE *arquivo_dados)
     DADOS_INDEX *registro_index = (DADOS_INDEX *)malloc(sizeof(DADOS_INDEX));
     DADOS *registro_dados = init_registro_dados();
 
+    //Alocação e inicialização do vetor de indices
     DADOS_INDEX *vetor_index = criar_vetor(TAMANHO_VETOR_INDEX);
 
-    /*For para pegar dados, pular o numero de bytes do registro, escreve apaga registrom de index*/
+    /*Loop para pegar os registros do arquivo de dados e escrever no arquivo de índices aqueles que não estão lógicamente removidos*/
     while (fread(&status, sizeof(char), 1, arquivo_dados) != 0)
     {
-
+        //
         fread(&tamanho_reg, sizeof(int), 1, arquivo_dados);
 
         // Se o registro não foi removido, lemos os campos restantes e imprimimos na tela
@@ -320,7 +310,7 @@ void funcionalidade6(void)
         printf("N Rem: %d\n", getnRemovidos(registro_cabecalho_dados));
 
         // LÓGICA DE REAPROVEITAMENTO DE ESPAÇO
-        if (getTopo(registro_cabecalho_dados) == -1 && getnRemovidos(registro_cabecalho_dados) == 0) //Or ou And????
+        if (getTopo(registro_cabecalho_dados) == -1 && getnRemovidos(registro_cabecalho_dados) == 0) 
         {
             //Verefica que o item que está sendo ordenado já existe no arquivo de indice
             if(!busca_binaria_index(vetor_index, registro_dados->id, 0, count_reg-1)){
@@ -377,26 +367,4 @@ void funcionalidade6(void)
     binarioNaTela(arquivo_index_name);
 }
 
-void teste_vetor()
-{
-    int command, tamanho = 0;
-    int id;
-    long long int boff;
-    scanf("%d", &command);
-    DADOS_INDEX *registro = (DADOS_INDEX *)malloc(sizeof(DADOS_INDEX));
-    // interface(command);
-    DADOS_INDEX *vetor = criar_vetor(500);
-    for (int i = 0; i < command; i++)
-    {
-        scanf("%d %lld", &id, &boff);
-        registro->chave = id;
-        registro->byteoffset = boff;
-        tamanho++;
-        inserir_ordenado(vetor, registro, tamanho);
-    }
-    imprimir_vetor(vetor, tamanho);
-}
 
-
-/*MODULARIZAR: TODO o inicio de abertura de arquivo e final na liveração de memória, criação e cópia do vetor de index, inserção de registros
-  Melhorar: TIrar a variavel global para pegar o tamanho* e TIRAR REPETIÇÃO DAS STRUCTS DEFINIDAS*/

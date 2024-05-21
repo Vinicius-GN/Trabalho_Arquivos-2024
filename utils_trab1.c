@@ -1,16 +1,24 @@
+//############################################################################
+/* As funções definidas neste arquivo estão explicadas no arquivo "utils_trab1.h". 
+Nesse código você encontrá comentários a nível de variáveis e procedimentos.
+##############################################################################*/
+
 #include "utils_trab1.h"
 
+//Definição da estrutura de cabealho doo arquivo de índice
 struct registro_cabecalho_index
 {
     char status;
 };
 
+//Definição da estrutura dos registros de índice
 struct registro_dados_index
 {
     int chave;
     long long int byteoffset;
 };
 
+//Definição da estrutura do cabeçalho do arquivo de dados
 struct registro_cabecalho{
     char status;
     long long int topo;
@@ -38,6 +46,7 @@ struct registro_dados{
 
 DADOS* ler_input_dados()
 {
+    //Alocação e inicialização do registro de dados
     DADOS* registro_dados = init_registro_dados();
 
     //Ao todo, temos que cada registro incialmente tem 33 bytes de tamanho fixo. 
@@ -46,6 +55,7 @@ DADOS* ler_input_dados()
     //Variável que acumulará o tamanho dos campos de tamanho variável para a alocação e contagem do tamanho do registro
     int contador_campo_var = 0;
 
+    //Variável auxiliar para armazenar o ID do registro
     int id = 0;
 
     //Inicialização de strings auxiliares para armazenar os campos de tamanho variável
@@ -54,64 +64,69 @@ DADOS* ler_input_dados()
     char clube[100] = "\0";
     char idade[100] = "\0";
 
-    //Ler os campos de input do usuario;
+    /*-----Ler os campos de input do usuario-----*/
+
+    //Ler o ID do jogador
     scanf("%d", &registro_dados->id);
+
+    //Ler a idade do jogador
     scan_quote_string(idade);
 
-    //Tranforma de string para inteiro
+    //Tranforma de string para inteiro usando a função atoi
     registro_dados->idade = atoi(idade);
     if(registro_dados->idade == 0){
         registro_dados->idade = -1; 
     }
     printf("%d ", registro_dados->idade);
 
-    //Ler os campos de tamanho variavel:
+    /*Ler os campos de tamanho variavel:*/
 
-    //Ler o nome
+    //Ler o nome do jogador
     scan_quote_string(nome);
-    if(strlen(nome) == 0){
-        registro_dados->tam_Nome = -1;
+    if(strlen(nome) == 0){//Se a string for vazia, o tamanho do campo Nome é definido como 0
+        registro_dados->tam_Nome = 0;
     }
     else{
-        registro_dados->tam_Nome = strlen(nome);
-        contador_campo_var += registro_dados -> tam_Nome;
-        registro_dados->nome = (char*)malloc(sizeof(registro_dados->tam_Nome * sizeof(char)));
-        strcpy(registro_dados->nome, nome);
+        registro_dados->tam_Nome = strlen(nome); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
+        contador_campo_var += registro_dados -> tam_Nome; //Acumula o tamanho do campo para a contagem do tamanho do registro
+        registro_dados->nome = (char*)malloc(sizeof(registro_dados->tam_Nome * sizeof(char))); //Aloca memória para o campo
+        strcpy(registro_dados->nome, nome); //Copia a string para o campo
     }
     printf("%s %ld ", registro_dados->nome, strlen(nome));
 
     //Ler a nacionalidade
     scan_quote_string(nacionalidade);
-    if(strlen(nacionalidade) == 0){
-        registro_dados->tam_Nacionalidade = -1;
+    if(strlen(nacionalidade) == 0){ //Se a string for vazia, o tamanho do campo Nacionalidade é definido como 0
+        registro_dados->tam_Nacionalidade = 0;
     }
     else{
-        registro_dados->tam_Nacionalidade = strlen(nacionalidade);
-        contador_campo_var += registro_dados->tam_Nacionalidade;
-        registro_dados->nacionalidade= (char*)malloc(sizeof(registro_dados->tam_Nacionalidade * sizeof(char)));
-        strcpy(registro_dados->nacionalidade, nacionalidade);
+        registro_dados->tam_Nacionalidade = strlen(nacionalidade); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
+        contador_campo_var += registro_dados->tam_Nacionalidade; //Acumula o tamanho do campo para a contagem do tamanho do registro
+        registro_dados->nacionalidade= (char*)malloc(sizeof(registro_dados->tam_Nacionalidade * sizeof(char))); //Aloca memória para o campo
+        strcpy(registro_dados->nacionalidade, nacionalidade); //Copia a string para o campo
     }
     printf("%s %ld ", registro_dados->nacionalidade, strlen(nacionalidade));
 
     //Ler o clube
     scan_quote_string(clube);
-    if(strlen(clube) == 0){
-        registro_dados->tam_Clube = -1;
+    if(strlen(clube) == 0){ //Se a string for vazia, o tamanho do campo Clube é definido como 0
+        registro_dados->tam_Clube = 0;
     }
     else{
-        registro_dados->tam_Clube = strlen(clube);
-        contador_campo_var += registro_dados->tam_Clube;
-        registro_dados->clube = (char*)malloc(sizeof(registro_dados->tam_Clube * sizeof(char)));
-        strcpy(registro_dados->clube, clube);
+        registro_dados->tam_Clube = strlen(clube); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
+        contador_campo_var += registro_dados->tam_Clube; //Acumula o tamanho do campo para a contagem do tamanho do registro
+        registro_dados->clube = (char*)malloc(sizeof(registro_dados->tam_Clube * sizeof(char))); //Aloca memória para o campo
+        strcpy(registro_dados->clube, clube); //Copia a string para o campo
     }
     printf("%s %d", registro_dados->clube, registro_dados->tam_Clube);
 
-    registro_dados->tamanho_registro = contador_tamanho + contador_campo_var;
+    registro_dados->tamanho_registro = contador_tamanho + contador_campo_var; //Atualiza o tamanho do registro de dados após ler os campos de input
 
     return registro_dados;
 }
 
 char get_status(CABECALHO* cabecalho){
+    //Pega o status do registro cabeçalho do arquivo de dados
     if(cabecalho == NULL){
         printf("Erro ao acessar o status do cabeçalho\n");
         return '0';
@@ -120,6 +135,7 @@ char get_status(CABECALHO* cabecalho){
 }
 
 int getID(DADOS* registro){
+    //Pega o ID do registro de dados
     if(registro == NULL){
         printf("Erro ao acessar o ID do registro\n");
         return -1;
@@ -128,6 +144,7 @@ int getID(DADOS* registro){
 }
 
 long long int getTopo(CABECALHO* registro){
+    //Pega o topo do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o topo do registro\n");
         return -1;
@@ -136,6 +153,7 @@ long long int getTopo(CABECALHO* registro){
 }
 
 int getnRemovidos(CABECALHO* registro){
+    //Pega o número de registros removidos do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o nRemovidos do registro\n");
         return -1;
@@ -144,6 +162,7 @@ int getnRemovidos(CABECALHO* registro){
 }
 
 int getnRegDisponiveis(CABECALHO* registro){
+    //Pega o número de registros disponíveis do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o nRegDisponiveis do registro\n");
         return -1;
@@ -152,6 +171,7 @@ int getnRegDisponiveis(CABECALHO* registro){
 }
 
 long long int getProxRegDisponivel(CABECALHO* registro){
+    //Pega o byteoffset do próximo registro disponível do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o proxRegDisponivel do registro\n");
         return -1;
@@ -160,6 +180,7 @@ long long int getProxRegDisponivel(CABECALHO* registro){
 }
 
 void set_nRegDisponiveis(CABECALHO* registro, int n){
+    //Atualiza o número de registros disponíveis do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o nRegDisponiveis do registro\n");
         return;
@@ -168,6 +189,7 @@ void set_nRegDisponiveis(CABECALHO* registro, int n){
 }
 
 void set_nRegRemovidos(CABECALHO* registro, int n){
+    //Atualiza o número de registros removidos do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o nRegRemovidos do registro\n");
         return;
@@ -176,6 +198,7 @@ void set_nRegRemovidos(CABECALHO* registro, int n){
 }
 
 void set_topo(CABECALHO* registro, int n){
+    //Atualiza o topo do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o topo do registro\n");
         return;
@@ -184,6 +207,7 @@ void set_topo(CABECALHO* registro, int n){
 }
 
 void setProxRegDisponivel(CABECALHO* registro, long long int n){
+    //Atualiza o campo de próximo registro disponível do registro de cabeçalho no arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o proxRegDisponivel do registro\n");
         return;
@@ -274,14 +298,14 @@ void reaproveitamento_dados(FILE* arquivo_dados, DADOS* registro_dados, long lon
     int tam_registro_rem = get_tam(endereco, arquivo_dados);
     int diferenca = tam_registro_rem - registro_dados->tamanho_registro;
 
-    fseek(arquivo_dados, endereco, SEEK_SET); //Posiciona o ponteiro no início do registro a ser removido
+    fseek(arquivo_dados, endereco, SEEK_SET); //Reposiciona o ponteiro no início do registro a ser reaproveitado (get_tam muda)
     registro_dados->tamanho_registro = tam_registro_rem; //Atualiza o campo de tamanho do registro
     escrever_registro_dados(registro_dados, arquivo_dados); //Escreve o registro no arquivo
 
     printf("Diferença igual a %d\n", diferenca);
     
     //Preenche o resto do registro com '$'
-    for(int i = 0; i < registro_dados->tamanho_registro; i++){
+    for(int i = 0; i < diferenca; i++){
         fwrite("$", sizeof(char), 1, arquivo_dados);
     }
 }
@@ -325,7 +349,7 @@ void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro
 //Caso encontre um endereço viável, inserimos o registro no endereço encontrado
     registro_index->chave = registro_dados->id;
     registro_index->byteoffset = endereco;  
-    printf("Endereço: %lld\n", endereco);
+    printf("Endereço encontrado: %lld\n", endereco);
 
     // Uso o endereço encontrado pelo best-fit para inserir meu novo registro
     fseek(arquivo_dados, endereco, SEEK_SET);   

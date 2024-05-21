@@ -145,11 +145,4 @@ void ler_registro(FILE* arquivo_bin, DADOS* registro);
 */
 void print_registro(DADOS* registro);
 
-/**
- * @brief 
- * 
- * @param cabecalho 
- * @return 
-*/
-char get_status(CABECALHO* cabecalho);
 #endif
