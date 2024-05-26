@@ -35,13 +35,13 @@ void inserir_ordenado(DADOS_INDEX* lista, DADOS_INDEX* registro, int tamanho);
  * @brief Remoção de um item do vetor de índices e manutenção da sua ordenação.
  * 
  * @param vetor Ponterio para o vetor de índices.
- * @param registro Ponteiro para o registro a ser removido.
+ * @param chave chave do registro a ser removido.
  * @param inicio Índice de início da busca.
  * @param fim Índice de fim da busca.
  * @param tamanho Tamanho do vetor.
  * @return void
  */
-void remover_ordenado(DADOS_INDEX* vetor, DADOS_INDEX* registro, int inicio, int fim, int tamanho);
+void remover_ordenado(DADOS_INDEX* vetor, int chave, int inicio, int fim, int tamanho);
 
 /**
  * @brief Libera a memória alocada para a estrutura do vetor de índices.

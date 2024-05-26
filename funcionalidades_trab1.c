@@ -38,6 +38,14 @@ struct registro_dados{
     ;
 };
 
+struct registro_cabecalho{
+    char status;
+    long long int topo;
+    long long int prox_reg_disponivel;
+    int n_reg_disponiveis;
+    int n_reg_removidos;
+};
+
 // Incrementar a variável de controle do número de registros no vetor de index
 int incrementar_count_reg(){
     count_reg++;
@@ -175,7 +183,9 @@ void funcionalidade4()
 
 void funcionalidade5(void)
 {
-    int num_remover = 0;
+    int num_remover = 0, num_campos = 0, rem;
+    long long int cur_byte_offset = 0;
+    char campo[10];
     scanf("%d", &num_remover);
 
     // Pega o input dos nomes dos arquivos de dados e index
@@ -203,6 +213,7 @@ void funcionalidade5(void)
 
     // Ler o primeiro byte do arquivo de dados para verificar se está corrompido
     CABECALHO *registro_cabecalho_dados = ler_cabecalho(arquivo_dados);
+    cur_byte_offset = sizeof(CABECALHO);
     char status = get_status(registro_cabecalho_dados);
     if (status == '0')
     {
@@ -215,14 +226,150 @@ void funcionalidade5(void)
     // Criação do arquivo de index (não escreve na memória ainda)
     DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); // Puxa o arquivo de index para a memória principal por meio de um vetor de registros
 
+
+    DADOS* parametros = (DADOS*) malloc(num_remover*sizeof(DADOS));
+    DADOS* aux = (DADOS*) malloc(sizeof(DADOS));
+
+    parametros->id=-1;
+    parametros->idade= -1;
+    parametros->nome = (char*) malloc(sizeof(char)*30);
+    strcpy(parametros->nome,"$");
+    parametros->nacionalidade = (char*) malloc(sizeof(char)*30);
+    strcpy(parametros->nacionalidade,"$");
+    parametros->clube = (char*) malloc(sizeof(char)*30);
+    strcpy(parametros->clube,"$");
+    
     for (int i = 0; i < num_remover; i++)
     {
-        // Alocar e ler o registro de dados do input
-        //Fazer count--
+      scanf("%d",&num_campos);
+        //preenche os parâmetros do registro
+        for(int j=0;j<num_campos;j++){
+            scanf("%s",campo);
+            if(strcmp(campo,"id")==0){
+                scanf(" %d",&parametros->id);
+            }
+            else if(strcmp(campo,"idade")==0){
+                scanf(" %d",&parametros->idade);
+            }
+            else if(strcmp(campo,"nome")==0){
+                scan_quote_string(parametros->nome);
+            }
+            else if(strcmp(campo,"nacionalidade")==0){
+                scan_quote_string(parametros->nacionalidade);
+            }
+            else if(strcmp(campo,"nomeClube")==0){
+                scan_quote_string(parametros->clube);
+            }
+        }
+        if(parametros->id == -1){
+            cur_byte_offset = busca_binaria_index(vetor_index,parametros->id,0,count_reg-1);
+            if(cur_byte_offset!=-1){
+                fseek(arquivo_dados,cur_byte_offset,SEEK_SET);
+                fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
+                fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
+                ler_registro(arquivo_dados,aux);
+                rem = 1;
+                if((parametros->idade != aux->idade) && (parametros->idade !=-1)){
+                    rem=0;
+                }
+                if((strcmp(parametros->nome,aux->nome)!=0) && (strcmp(parametros->nome,"$")!=0) ){
+                    rem=0;
+                }
+                if((strcmp(parametros->nome,aux->nacionalidade)!=0) && (strcmp(parametros->nacionalidade,"$")!=0)){
+                    rem=0;
+                }
+                if((strcmp(parametros->nome,aux->clube)!=0) && (strcmp(parametros->nome,"$")!=0)){
+                    rem=0;
+                }
+                    
+                if(rem == 1){
+                    fseek(arquivo_dados,-(aux->tamanho_registro),SEEK_CUR);
+                    fwrite('1',sizeof(char),1,arquivo_dados);
+                    fwrite(aux->tamanho_registro,sizeof(int),1,arquivo_dados);
+                    fwrite(registro_cabecalho_dados->topo,sizeof(long long int),1,arquivo_dados);
+                    registro_cabecalho_dados->topo = cur_byte_offset;
+                    fseek(arquivo_dados,(aux->tamanho_registro)-5-sizeof(long long int),SEEK_CUR);
+                    remover_ordenado(vetor_index,aux->id,0,count_reg-1,count_reg);
+                    count_reg--;
+                    registro_cabecalho_dados->n_reg_removidos++;
 
-        //O resto é com o mano augusto
+                    }
+                    if(aux->tam_Nome!=0){
+                        free(aux->nome);
+                        aux->nacionalidade=NULL;
+                    }
+                    if(aux->tam_Nacionalidade!=0){
+                        free(aux->nacionalidade);
+                        aux->nacionalidade=NULL;
+                    }
+                    if(aux->tam_Clube!=0){
+                        free(aux->clube);
+                        aux->clube=NULL;
+                    }
+                    
+
+            }
+
+        }
+        else{
+            while(fread(&(aux->removido), sizeof(char), 1, arquivo_dados) != 0){
+                fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
+                fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
+                if(aux->removido!='1'){
+                    ler_registro(arquivo_dados,aux);
+                    rem = 1;
+                    if((parametros->idade != aux->idade) && (parametros->idade !=-1)){
+                        rem=0;
+                    }
+                    if((strcmp(parametros->nome,aux->nome)!=0) && (strcmp(parametros->nome,"$")!=0) ){
+                        rem=0;
+                    }
+                    if((strcmp(parametros->nome,aux->nacionalidade)!=0) && (strcmp(parametros->nacionalidade,"$")!=0)){
+                        rem=0;
+                    }
+                    if((strcmp(parametros->nome,aux->clube)!=0) && (strcmp(parametros->nome,"$")!=0)){
+                        rem=0;
+                    }
+                    
+                    if(rem == 1){
+                        fseek(arquivo_dados,-(aux->tamanho_registro),SEEK_CUR);
+                        fwrite('1',sizeof(char),1,arquivo_dados);
+                        fwrite(aux->tamanho_registro,sizeof(int),1,arquivo_dados);
+                        fwrite(registro_cabecalho_dados->topo,sizeof(long long int),1,arquivo_dados);
+                        registro_cabecalho_dados->topo = cur_byte_offset;
+                        fseek(arquivo_dados,(aux->tamanho_registro)-5-sizeof(long long int),SEEK_CUR);
+                        remover_ordenado(vetor_index,aux->id,0,count_reg-1,count_reg);
+                        count_reg--;
+                        registro_cabecalho_dados->n_reg_removidos++;
+
+                    }
+                     if(aux->tam_Nome!=0){
+                        free(aux->nome);
+                        aux->nacionalidade=NULL;
+                    }
+                    if(aux->tam_Nacionalidade!=0){
+                        free(aux->nacionalidade);
+                        aux->nacionalidade=NULL;
+                    }
+                    if(aux->tam_Clube!=0){
+                        free(aux->clube);
+                        aux->clube=NULL;
+                    }
+
+                }
+                else{
+                fseek(arquivo_dados, (aux->tamanho_registro)-5, SEEK_CUR);
+                }
+                cur_byte_offset += aux->tamanho_registro;
+            }
+        }  
+
+        
         
     }
+    //rescrever cabecalho
+    fseek(arquivo_dados,0,SEEK_CUR);
+    escrever_cabecalho(arquivo_dados,registro_cabecalho_dados);
 
     //Escrever os registros no arquivo de indice
     escrever_vetor_index(vetor_index, arquivo_index);
@@ -236,6 +383,8 @@ void funcionalidade5(void)
     //Libera memória
     apagar_vetor(&vetor_index);
     free(registro_cabecalho_dados);
+    apagar_registro(&aux);
+    apagar_registro(&parametros);
     fclose(arquivo_dados);
     fclose(arquivo_index);
 
@@ -313,7 +462,7 @@ void funcionalidade6(void)
         if (getTopo(registro_cabecalho_dados) == -1 && getnRemovidos(registro_cabecalho_dados) == 0) 
         {
             //Verefica que o item que está sendo ordenado já existe no arquivo de indice
-            if(!busca_binaria_index(vetor_index, registro_dados->id, 0, count_reg-1)){
+            if(busca_binaria_index(vetor_index, registro_dados->id, 0, count_reg-1)==-1){
                 printf("Registro ainda não inserido!\n");
                 inserir_final(arquivo_dados, arquivo_index, registro_dados, registro_cabecalho_dados, vetor_index, registro_index);
             }
@@ -325,7 +474,7 @@ void funcionalidade6(void)
         {
             printf("Tenho reaproveitamento de espaço\n");
             //Verifica se o item que está sendo ordenado já existe no arquivo de indice
-            if(!busca_binaria_index(vetor_index, registro_dados->id, 0, count_reg-1)){
+            if(busca_binaria_index(vetor_index, registro_dados->id, 0, count_reg-1)==-1){
                 printf("Registro ainda não inserido!\n");
 
                 // Como há registros logicamente removidos, temos que encontrar o endreço para inserção seguindo a estratégia best-fit:

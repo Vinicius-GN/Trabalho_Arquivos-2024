@@ -61,13 +61,13 @@ void inserir_ordenado(DADOS_INDEX* vetor, DADOS_INDEX* registro, int tamanho){
     }
 }
 
-void remover_ordenado(DADOS_INDEX* vetor, DADOS_INDEX*registro, int inicio, int fim, int tamanho){ 
+void remover_ordenado(DADOS_INDEX* vetor, int chave, int inicio, int fim, int tamanho){ 
     int pos = fim+inicio/2; //Cálculo da posição do meio para a busca binária
    
     if(inicio <= fim){ //Verificação de condição base da recursão em busca binária
 
         //Se achar o registro, remove ele e reorganiza o vetor
-        if(vetor[pos].chave == registro->chave){
+        if(vetor[pos].chave == chave){
 
             //Remoção do registro
             vetor[pos].chave = -1; 
@@ -83,12 +83,12 @@ void remover_ordenado(DADOS_INDEX* vetor, DADOS_INDEX*registro, int inicio, int 
         }
 
         //Se a chave do registro for maior que a chave do registro na posição pos, chama a função recursivamente para a metade da direita
-        else if(vetor[pos].chave > registro->chave){
-            remover_ordenado(vetor, registro, inicio, pos-1, tamanho);
+        else if(vetor[pos].chave > chave){
+            remover_ordenado(vetor, chave, inicio, pos-1, tamanho);
         }
         //Se a chave do registro for menor que a chave do registro na posição pos, chama a função recursivamente para a metade da esquerda
-        else if(vetor[pos].chave < registro->chave){
-            remover_ordenado(vetor, registro, pos+1, fim, tamanho);
+        else if(vetor[pos].chave < chave){
+            remover_ordenado(vetor, chave, pos+1, fim, tamanho);
         }
     }
 }

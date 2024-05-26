@@ -108,7 +108,7 @@ void setProxRegDisponivel(CABECALHO* registro, long long int n);
  * @param 
  * @return 
  */
-bool busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim);
+long long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim);
 
 /**
  * @brief 

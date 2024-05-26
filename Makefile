@@ -21,8 +21,7 @@ utils_trab1.o: utils_trab1.c
 
 copy:
 	rm -f b1.bin indice.bin
-	cp "/home/vinicius/Desktop/arquivos/Entrada/binario10.bin" "/home/vinicius/Desktop/trabalho_arquivos/b1.bin"
-
+	cp "C:\Users\gutoc\Documents\GitHub\trabalho_arquivos\b1.bin" "C:\Users\gutoc\Documents\GitHub\trabalho_arquivos\binario10.bin"
 clean:
 	rm -f programaTrab programaTrab.o utils.o funcionalidades_intr.o funcionalidades_trab1.o vetorIndex.o utils_trab1.o 
 

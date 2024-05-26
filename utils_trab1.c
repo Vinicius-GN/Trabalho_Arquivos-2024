@@ -215,7 +215,7 @@ void setProxRegDisponivel(CABECALHO* registro, long long int n){
     registro->prox_reg_disponivel = n;
 }
 
-bool busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim){
+long long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim){
     if(vetor == NULL){
         printf("Erro ao acessar o vetor\n");
         return false;
@@ -223,7 +223,7 @@ bool busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim){
     int pos = (inicio+fim)/2;
     if(inicio <= fim){
         if(vetor[pos].chave == chave){
-            return true;
+            return vetor[pos].byteoffset;
         }
         else if(vetor[pos].chave > chave){
             return busca_binaria_index(vetor, chave, inicio, pos-1);
@@ -232,7 +232,7 @@ bool busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim){
             return busca_binaria_index(vetor, chave, pos+1, fim);
         }
     }
-    return false;
+    return -1;
 }
 
 int get_tam(long long int endereco, FILE* arquivo_dados){
