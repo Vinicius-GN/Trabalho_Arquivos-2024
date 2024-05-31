@@ -8,8 +8,8 @@ Nesse código você encontrá comentários a nível de variáveis e procedimento
 //Definição da estrutura do cabeçalho, seguindo a ordem recomendada nas espeficiações do trabalho
 struct registro_cabecalho{
     char status;
-    long long int topo;
-    long long int prox_reg_disponivel;
+    long int topo;
+    long int prox_reg_disponivel;
     int n_reg_disponiveis;
     int n_reg_removidos;
 };
@@ -28,7 +28,7 @@ struct busca_lista{
 struct registro_dados{
     char removido;
     int tamanho_registro;
-    long long int prox_reg;
+    long int prox_reg;
     int id;
     int idade;
     int tam_Nome;
@@ -56,8 +56,8 @@ void escrever_cabecalho(FILE* arquivo, CABECALHO* cabecalho){
 
     //Escreve o cabeçalho no arquivo binário campo a campo, asssim como solicitado
     fwrite(&cabecalho->status, sizeof(char), 1, arquivo);
-    fwrite(&cabecalho->topo, sizeof(long long int), 1, arquivo);
-    fwrite(&cabecalho->prox_reg_disponivel, sizeof(long long int), 1, arquivo);
+    fwrite(&cabecalho->topo, sizeof(long int), 1, arquivo);
+    fwrite(&cabecalho->prox_reg_disponivel, sizeof(long int), 1, arquivo);
     fwrite(&cabecalho->n_reg_disponiveis, sizeof(int), 1, arquivo);
     fwrite(&cabecalho->n_reg_removidos, sizeof(int), 1, arquivo);
 }
@@ -72,8 +72,8 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
         exit(1);
     }
     fread(&cabecalho->status, sizeof(char), 1, arquivo);
-    fread(&cabecalho->topo, sizeof(long long int), 1, arquivo);
-    fread(&cabecalho->prox_reg_disponivel, sizeof(long long int), 1, arquivo);
+    fread(&cabecalho->topo, sizeof(long int), 1, arquivo);
+    fread(&cabecalho->prox_reg_disponivel, sizeof(long int), 1, arquivo);
     fread(&cabecalho->n_reg_disponiveis, sizeof(int), 1, arquivo);
     fread(&cabecalho->n_reg_removidos, sizeof(int), 1, arquivo);
     return cabecalho;
@@ -81,7 +81,7 @@ CABECALHO* ler_cabecalho(FILE* arquivo){
 
 void ler_registro(FILE* arquivo_bin, DADOS* registro){
     //lê os campos fixos do registro
-    fread(&(registro->prox_reg), sizeof(long long int), 1, arquivo_bin);
+    fread(&(registro->prox_reg), sizeof(long int), 1, arquivo_bin);
 
     fread(&(registro->id), sizeof(int), 1, arquivo_bin);
 
@@ -215,7 +215,7 @@ void escrever_registro_dados(DADOS* registro, FILE* arquivo){
     //Escreve os registros de dados no arquivo binário campo a campo, assim como solicitado
     fwrite(&registro->removido, sizeof(char), 1, arquivo);
     fwrite(&registro->tamanho_registro, sizeof(int), 1, arquivo);
-    fwrite(&registro->prox_reg, sizeof(long long int), 1, arquivo);
+    fwrite(&registro->prox_reg, sizeof(long int), 1, arquivo);
     fwrite(&registro->id, sizeof(int), 1, arquivo);
     fwrite(&registro->idade, sizeof(int), 1, arquivo);
     

@@ -15,14 +15,13 @@ struct registro_cabecalho_index
 struct registro_dados_index
 {
     int chave;
-    long long int byteoffset;
+    long int byteoffset;
 };
 
 //Definição da estrutura do cabeçalho do arquivo de dados
 struct registro_cabecalho{
     char status;
-    long long int topo;
-    long long int prox_reg_disponivel;
+    long int topo; long int prox_reg_disponivel;
     int n_reg_disponiveis;
     int n_reg_removidos;
 };
@@ -32,7 +31,7 @@ struct registro_cabecalho{
 struct registro_dados{
     char removido;
     int tamanho_registro;
-    long long int prox_reg;
+    long int prox_reg;
     int id;
     int idade;
     int tam_Nome;
@@ -143,7 +142,7 @@ int getID(DADOS* registro){
     return registro->id;
 }
 
-long long int getTopo(CABECALHO* registro){
+long int getTopo(CABECALHO* registro){
     //Pega o topo do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o topo do registro\n");
@@ -170,7 +169,7 @@ int getnRegDisponiveis(CABECALHO* registro){
     return registro->n_reg_disponiveis;
 }
 
-long long int getProxRegDisponivel(CABECALHO* registro){
+long int getProxRegDisponivel(CABECALHO* registro){
     //Pega o byteoffset do próximo registro disponível do registro de cabeçalho do arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o proxRegDisponivel do registro\n");
@@ -206,7 +205,7 @@ void set_topo(CABECALHO* registro, int n){
     registro->topo = n;
 }
 
-void setProxRegDisponivel(CABECALHO* registro, long long int n){
+void setProxRegDisponivel(CABECALHO* registro, long int n){
     //Atualiza o campo de próximo registro disponível do registro de cabeçalho no arquivo de dados
     if(registro == NULL){
         printf("Erro ao acessar o proxRegDisponivel do registro\n");
@@ -215,7 +214,7 @@ void setProxRegDisponivel(CABECALHO* registro, long long int n){
     registro->prox_reg_disponivel = n;
 }
 
-long long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim){
+long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim){
     if(vetor == NULL){
         printf("Erro ao acessar o vetor\n");
         return false;
@@ -235,7 +234,7 @@ long long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int
     return -1;
 }
 
-int get_tam(long long int endereco, FILE* arquivo_dados){
+int get_tam(long int endereco, FILE* arquivo_dados){
 
     fseek(arquivo_dados, endereco, SEEK_SET);
     char removido;
@@ -251,15 +250,45 @@ int get_tam(long long int endereco, FILE* arquivo_dados){
     }
 }
 
-int get_prox(long long int endereco, FILE* arquivo_dados){
+int get_prox(long int endereco, FILE* arquivo_dados){
 
     fseek(arquivo_dados, endereco + 5, SEEK_SET);
-    long long int prox;
-    fread(&prox, sizeof(long long int), 1, arquivo_dados);
+    long int prox;
+    fread(&prox, sizeof(long int), 1, arquivo_dados);
     return prox;
 }
 
-long long best_fit_recursivo(FILE* arquivo_dados, DADOS* registro, CABECALHO* cabecalho, long long int endereco_anterior, long long int endereco_atual){
+void remover_dados(DADOS* aux,FILE* arquivo_dados,CABECALHO* cabecalho_dados, long int cur_byte_offset){
+    long int reg_rem= cur_byte_offset, reg_prox = cabecalho_dados->topo ,reg_ant = -1,reg_atual=-1;
+    int tam_reg = aux-> tamanho_registro, tam_prox=0;
+    char lixo;
+    aux->removido='1';
+    while(reg_prox!=-1 && tam_prox < tam_reg){
+        fseek(arquivo_dados,reg_prox,SEEK_SET);
+        fread(&lixo,sizeof(char),1,arquivo_dados);
+        fread(&tam_prox,sizeof(long int),1,arquivo_dados);
+        reg_ant = reg_atual;
+        reg_atual = reg_prox;
+        fread(&reg_prox,sizeof(long int),1,arquivo_dados);
+    }
+    if(reg_ant=-1 ){
+        cabecalho_dados->topo = reg_rem;
+    }
+    else{
+        fseek(arquivo_dados,reg_ant+sizeof(int)+sizeof(char),SEEK_SET);
+        fwrite(&reg_rem,sizeof(long int),1,arquivo_dados);
+    }
+        fseek(arquivo_dados,reg_rem,SEEK_SET);
+        fwrite(&(aux->removido),sizeof(char),1,arquivo_dados);
+        fwrite(&tam_reg,sizeof(int),1,arquivo_dados);
+        fwrite(&reg_atual,sizeof(long int),1,arquivo_dados);
+        cabecalho_dados->n_reg_removidos++;
+        cabecalho_dados->n_reg_disponiveis--;
+        fseek(arquivo_dados,reg_rem,SEEK_SET);
+
+}
+
+long long best_fit_recursivo(FILE* arquivo_dados, DADOS* registro, CABECALHO* cabecalho, long int endereco_anterior, long int endereco_atual){
     if(endereco_atual == -1){ //A busca não encontrou um registro que caiba o novo registro a ser inserido
         printf("\nA busca não encontrou um registro que caiba o novo registro a ser inserido\n");
         return -1;
@@ -267,7 +296,7 @@ long long best_fit_recursivo(FILE* arquivo_dados, DADOS* registro, CABECALHO* ca
     else{
         if(registro->tamanho_registro <= get_tam(endereco_atual, arquivo_dados)){
             printf("\nRegistro de reutilização encontrado! Diferença igual a %d\n", (get_tam(endereco_atual, arquivo_dados) - registro->tamanho_registro));
-            long long int prox_atual = get_prox(endereco_atual, arquivo_dados);
+            long int prox_atual = get_prox(endereco_atual, arquivo_dados);
             if(endereco_atual == endereco_anterior){
                 printf("\nO registro a ser reutilizado é o topo\n");
                 cabecalho->topo = prox_atual;
@@ -276,7 +305,7 @@ long long best_fit_recursivo(FILE* arquivo_dados, DADOS* registro, CABECALHO* ca
                 //Reescreve o ponteiro do registro anterior para apontar para o próximo registro
                 printf("Reescri o ponteiro do registro anterior para apontar para o próximo registro\n");
                 fseek(arquivo_dados, endereco_anterior + 5, SEEK_SET);
-                fwrite(&prox_atual, sizeof(long long int), 1, arquivo_dados);
+                fwrite(&prox_atual, sizeof(long int), 1, arquivo_dados);
             }
             return endereco_atual;
         }
@@ -287,12 +316,12 @@ long long best_fit_recursivo(FILE* arquivo_dados, DADOS* registro, CABECALHO* ca
 
 }
 
-long long int best_fit(FILE* arquivo_dados, DADOS* registro, CABECALHO* cabecalho, long long int endereco){
+long int best_fit(FILE* arquivo_dados, DADOS* registro, CABECALHO* cabecalho, long int endereco){
     return best_fit_recursivo(arquivo_dados, registro, cabecalho, endereco, endereco);
 }
 
 
-void reaproveitamento_dados(FILE* arquivo_dados, DADOS* registro_dados, long long int endereco){
+void reaproveitamento_dados(FILE* arquivo_dados, DADOS* registro_dados, long int endereco){
 
     //Calcula a diferença entre o tamanho do registro a ser inserido e o tamanho do registro removido
     int tam_registro_rem = get_tam(endereco, arquivo_dados);
@@ -312,7 +341,7 @@ void reaproveitamento_dados(FILE* arquivo_dados, DADOS* registro_dados, long lon
 
 void inserir_final(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dados, CABECALHO* registro_cabecalho_dados, DADOS_INDEX* vetor_index, DADOS_INDEX* registro_index){
     // Como não há registros logicamente removidos, inserir no fim do arquivo:
-    long long int endereco = getProxRegDisponivel(registro_cabecalho_dados);  
+    long int endereco = getProxRegDisponivel(registro_cabecalho_dados);  
     registro_index->chave = registro_dados->id;
     registro_index->byteoffset = endereco;  
     printf("Endereço: %lld\n", endereco);
@@ -345,7 +374,7 @@ void inserir_final(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dad
     escrever_cabecalho(arquivo_dados, registro_cabecalho_dados); //Escreve o cabeçalho no arquivo de dados
 }
 
-void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dados, CABECALHO* registro_cabecalho_dados, DADOS_INDEX* vetor_index, DADOS_INDEX* registro_index, long long int endereco){
+void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dados, CABECALHO* registro_cabecalho_dados, DADOS_INDEX* vetor_index, DADOS_INDEX* registro_index, long int endereco){
 //Caso encontre um endereço viável, inserimos o registro no endereço encontrado
     registro_index->chave = registro_dados->id;
     registro_index->byteoffset = endereco;  

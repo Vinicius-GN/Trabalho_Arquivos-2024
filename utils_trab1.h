@@ -38,9 +38,9 @@ int getID(DADOS* registro);
  * @brief Retorna o valor do campo "topo" do registro de cabeçalho.
  * 
  * @param registro Ponteiro para o registro de cabeçalho cujo topo é lido e retornado.
- * @return long long int 
+ * @return long int 
  */
-long long int getTopo(CABECALHO* registro);
+long int getTopo(CABECALHO* registro);
 
 /**
  * @brief Retorna o valor do campo "n_reg_removidos" do registro de cabeçalho.
@@ -62,9 +62,9 @@ int getnRegDisponiveis(CABECALHO* registro);
  * @brief Retorna o valor do campo "prox_reg_disponivel" do registro de cabeçalho.
  * 
  * @param registro Ponteiro para o registro de cabeçalho cujo "prox_reg_disponivel" é lido e retornado.
- * @return long long int
+ * @return long int
  */
-long long int getProxRegDisponivel(CABECALHO* registro);
+long int getProxRegDisponivel(CABECALHO* registro);
 
 /**
  * @brief Altera o valor do campo "n_reg_disponiveis" do registro de cabeçalho do arquivo de dados.
@@ -100,7 +100,7 @@ void set_topo(CABECALHO* registro, int n);
  * @param n Novo valor do campo "prox_reg_disponivel".
  * @return void
 */
-void setProxRegDisponivel(CABECALHO* registro, long long int n);
+void setProxRegDisponivel(CABECALHO* registro, long int n);
 
 /**
  * @brief 
@@ -108,7 +108,15 @@ void setProxRegDisponivel(CABECALHO* registro, long long int n);
  * @param 
  * @return 
  */
-long long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim);
+long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim);
+
+/**
+ * @brief 
+ * 
+ * @param 
+ * @return 
+ */
+void remover_dados(DADOS* aux,FILE* arquivo_dados,CABECALHO* cabecalho_dados, long int cur_byte_offset);
 
 /**
  * @brief 
@@ -124,7 +132,7 @@ void inserir_final(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dad
  * @param 
  * @return 
  */
-void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dados, CABECALHO* registro_cabecalho_dados, DADOS_INDEX* vetor_index, DADOS_INDEX* registro_index, long long int endereco);
+void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dados, CABECALHO* registro_cabecalho_dados, DADOS_INDEX* vetor_index, DADOS_INDEX* registro_index, long int endereco);
 
 /**
  * @brief 
@@ -132,5 +140,5 @@ void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro
  * @param 
  * @return 
  */
-long long int best_fit(FILE* arquivo_dados, DADOS* registro, CABECALHO* cabecalho, long long int endereco);
+long int best_fit(FILE* arquivo_dados, DADOS* registro, CABECALHO* cabecalho, long int endereco);
 #endif
