@@ -355,15 +355,15 @@ void funcionalidade5(void)
 
                     }
                      if(aux->tam_Nome!=0){
-                        //free(aux->nome);
+                        free(aux->nome);
                         aux->nacionalidade=NULL;
                     }
                     if(aux->tam_Nacionalidade!=0){
-                        //free(aux->nacionalidade);
+                        free(aux->nacionalidade);
                         aux->nacionalidade=NULL;
                     }
                     if(aux->tam_Clube!=0){
-                        //free(aux->clube);
+                        free(aux->clube);
                         aux->clube=NULL;
                     }
 
@@ -394,7 +394,8 @@ void funcionalidade5(void)
     //Libera memória
     apagar_vetor(&vetor_index);
     free(registro_cabecalho_dados);
-    //apagar_registro(&aux);
+    free(aux);
+    aux=NULL;
     apagar_registro(&parametros);
     fclose(arquivo_dados);
     fclose(arquivo_index);
