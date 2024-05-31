@@ -251,7 +251,6 @@ void funcionalidade5(void)
         //preenche os parâmetros do registro
         for(int j=0;j<num_campos;j++){
             scanf(" %s",campo);
-            printf("%s %d %d\n",campo,j,num_campos);
             if(strcmp(campo,"id")==0){
                 scanf(" %d",&parametros->id);
             }
@@ -268,7 +267,6 @@ void funcionalidade5(void)
                 scan_quote_string(parametros->clube);
             }
         }
-        printf("li os parametros\n");
         if(parametros->id != -1){
             cur_byte_offset = busca_binaria_index(vetor_index,parametros->id,0,count_reg-1);
             if(cur_byte_offset!=-1){
@@ -278,54 +276,44 @@ void funcionalidade5(void)
                 ler_registro(arquivo_dados,aux);
                 rem = 1;
                 if(parametros->idade !=-1){
-                        if(parametros->idade != aux->idade){
-                            rem=0;
-                        }
-                    }
-                    if(strcmp(parametros->nome,"$")!=0){
-                        if((aux->tam_Nome==0)||(strcmp(parametros->nome,aux->nome)!=0)){
-                            rem=0;
-                        }
-                    }
-                    if(strcmp(parametros->nacionalidade,"$")!=0){
-                        if((aux->tam_Nacionalidade==0)||(strcmp(parametros->nacionalidade,aux->nacionalidade)!=0)){
+                    if(parametros->idade != aux->idade){
                         rem=0;
-                        }
                     }
-                    if(strcmp(parametros->clube,"$")!=0){
-                        if((aux->tam_Clube==0)||strcmp(parametros->clube,aux->clube)!=0){
+                }
+                if(strcmp(parametros->nome,"$")!=0){
+                    if((aux->tam_Nome==0)||(strcmp(parametros->nome,aux->nome)!=0)){
                         rem=0;
-                        }
                     }
+                }
+                if(strcmp(parametros->nacionalidade,"$")!=0){
+                    if((aux->tam_Nacionalidade==0)||(strcmp(parametros->nacionalidade,aux->nacionalidade)!=0)){
+                    rem=0;
+                    }
+                }
+                if(strcmp(parametros->clube,"$")!=0){
+                    if((aux->tam_Clube==0)||strcmp(parametros->clube,aux->clube)!=0){
+                    rem=0;
+                    }
+                }
                     
                 if(rem == 1){
-                    printf("achei!\n");
-                        int falha = cur_byte_offset - busca_binaria_index(vetor_index,aux->id,0,count_reg-1);
-                        printf("falha: %d\n",falha);
-                        aux->removido='1';
-                        fseek(arquivo_dados,-(aux->tamanho_registro),SEEK_CUR);
-                        fwrite(&(aux->removido),sizeof(char),1,arquivo_dados);
-                        fwrite(&(aux->tamanho_registro),sizeof(int),1,arquivo_dados);
-                        fwrite(&(registro_cabecalho_dados->topo),sizeof(long int),1,arquivo_dados);
-                        registro_cabecalho_dados->topo = cur_byte_offset;
-                        fseek(arquivo_dados,(aux->tamanho_registro)-5-sizeof(long int),SEEK_CUR);
-                        remover_ordenado(vetor_index,aux->id,0,count_reg-1,count_reg);
-                        count_reg--;
-                        registro_cabecalho_dados->n_reg_removidos++;
+                    remover_dados(aux,arquivo_dados,registro_cabecalho_dados,cur_byte_offset);
+                    remover_ordenado(vetor_index,aux->id,0,count_reg-1,count_reg);
+                    count_reg--;
 
-                    }
-                    if(aux->tam_Nome!=0){
-                        free(aux->nome);
-                        aux->nacionalidade=NULL;
-                    }
-                    if(aux->tam_Nacionalidade!=0){
-                        free(aux->nacionalidade);
-                        aux->nacionalidade=NULL;
-                    }
-                    if(aux->tam_Clube!=0){
-                        free(aux->clube);
-                        aux->clube=NULL;
-                    }
+                }
+                if(aux->tam_Nome!=0){
+                    free(aux->nome);
+                    aux->nacionalidade=NULL;
+                }
+                if(aux->tam_Nacionalidade!=0){
+                    free(aux->nacionalidade);
+                    aux->nacionalidade=NULL;
+                }
+                if(aux->tam_Clube!=0){
+                    free(aux->clube);
+                    aux->clube=NULL;
+                }
                     
 
             }
@@ -361,31 +349,21 @@ void funcionalidade5(void)
                     }
                     
                     if(rem == 1){
-                        printf("achei!\n");
-                        int falha = cur_byte_offset - busca_binaria_index(vetor_index,aux->id,0,count_reg-1);
-                        printf("falha: %d\n",falha);
-                        aux->removido='1';
-                        fseek(arquivo_dados,-(aux->tamanho_registro),SEEK_CUR);
-                        fwrite(&(aux->removido),sizeof(char),1,arquivo_dados);
-                        fwrite(&(aux->tamanho_registro),sizeof(int),1,arquivo_dados);
-                        fwrite(&(registro_cabecalho_dados->topo),sizeof(long int),1,arquivo_dados);
-                        registro_cabecalho_dados->topo = cur_byte_offset;
-                        fseek(arquivo_dados,(aux->tamanho_registro)-5-sizeof(long int),SEEK_CUR);
+                        remover_dados(aux,arquivo_dados,registro_cabecalho_dados,cur_byte_offset);
                         remover_ordenado(vetor_index,aux->id,0,count_reg-1,count_reg);
                         count_reg--;
-                        registro_cabecalho_dados->n_reg_removidos++;
 
                     }
                      if(aux->tam_Nome!=0){
-                        free(aux->nome);
+                        //free(aux->nome);
                         aux->nacionalidade=NULL;
                     }
                     if(aux->tam_Nacionalidade!=0){
-                        free(aux->nacionalidade);
+                        //free(aux->nacionalidade);
                         aux->nacionalidade=NULL;
                     }
                     if(aux->tam_Clube!=0){
-                        free(aux->clube);
+                        //free(aux->clube);
                         aux->clube=NULL;
                     }
 
@@ -400,9 +378,8 @@ void funcionalidade5(void)
         
         
     }
-    printf("%ld\n",sizeof(CABECALHO));
     //rescrever cabecalho
-    fseek(arquivo_dados,0,SEEK_CUR);
+    fseek(arquivo_dados,0,SEEK_SET);
     escrever_cabecalho(arquivo_dados,registro_cabecalho_dados);
 
     //Escrever os registros no arquivo de indice
@@ -417,7 +394,7 @@ void funcionalidade5(void)
     //Libera memória
     apagar_vetor(&vetor_index);
     free(registro_cabecalho_dados);
-    apagar_registro(&aux);
+    //apagar_registro(&aux);
     apagar_registro(&parametros);
     fclose(arquivo_dados);
     fclose(arquivo_index);
@@ -485,10 +462,10 @@ void funcionalidade6(void)
         printf("Registro lido: %s\n", registro_dados->nacionalidade);
         printf("Registro lido: %s\n", registro_dados->clube);
         printf("Tam registro: %d\n", registro_dados->tamanho_registro);
-        printf("Prox reg: %lld\n", registro_dados->prox_reg);
+        printf("Prox reg: %ld\n", registro_dados->prox_reg);
 
-        printf("\nTopo: %lld\n", getTopo(registro_cabecalho_dados));
-        printf("Prox: %lld\n", getProxRegDisponivel(registro_cabecalho_dados));
+        printf("\nTopo: %ld\n", getTopo(registro_cabecalho_dados));
+        printf("Prox: %ld\n", getProxRegDisponivel(registro_cabecalho_dados));
         printf("N Reg: %d\n", getnRegDisponiveis(registro_cabecalho_dados));
         printf("N Rem: %d\n", getnRemovidos(registro_cabecalho_dados));
 

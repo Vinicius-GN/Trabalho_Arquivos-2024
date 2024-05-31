@@ -260,18 +260,18 @@ int get_prox(long int endereco, FILE* arquivo_dados){
 
 void remover_dados(DADOS* aux,FILE* arquivo_dados,CABECALHO* cabecalho_dados, long int cur_byte_offset){
     long int reg_rem= cur_byte_offset, reg_prox = cabecalho_dados->topo ,reg_ant = -1,reg_atual=-1;
-    int tam_reg = aux-> tamanho_registro, tam_prox=0;
+    int tam_reg = aux-> tamanho_registro, tam_atual=0;
     char lixo;
     aux->removido='1';
-    while(reg_prox!=-1 && tam_prox < tam_reg){
+    while(reg_prox!=-1 && tam_reg > tam_atual){
         fseek(arquivo_dados,reg_prox,SEEK_SET);
         fread(&lixo,sizeof(char),1,arquivo_dados);
-        fread(&tam_prox,sizeof(long int),1,arquivo_dados);
+        fread(&tam_atual,sizeof(int),1,arquivo_dados);
         reg_ant = reg_atual;
         reg_atual = reg_prox;
         fread(&reg_prox,sizeof(long int),1,arquivo_dados);
     }
-    if(reg_ant=-1 ){
+    if(reg_ant==-1 ){
         cabecalho_dados->topo = reg_rem;
     }
     else{
@@ -284,7 +284,7 @@ void remover_dados(DADOS* aux,FILE* arquivo_dados,CABECALHO* cabecalho_dados, lo
         fwrite(&reg_atual,sizeof(long int),1,arquivo_dados);
         cabecalho_dados->n_reg_removidos++;
         cabecalho_dados->n_reg_disponiveis--;
-        fseek(arquivo_dados,reg_rem,SEEK_SET);
+        fseek(arquivo_dados,cur_byte_offset+tam_reg,SEEK_SET);
 
 }
 
@@ -344,15 +344,15 @@ void inserir_final(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dad
     long int endereco = getProxRegDisponivel(registro_cabecalho_dados);  
     registro_index->chave = registro_dados->id;
     registro_index->byteoffset = endereco;  
-    printf("Endereço: %lld\n", endereco);
+    printf("Endereço: %ld\n", endereco);
 
     // Uso o registro_cabecalho_dados->prox_reg_disponivel (byteoffset do final) e escreve o registro de dados lá
     fseek(arquivo_dados, endereco, SEEK_SET);   
     escrever_registro_dados(registro_dados, arquivo_dados);
     endereco = ftell(arquivo_dados);
-    printf("Endereço: %lld\n", endereco);
+    printf("Endereço: %ld\n", endereco);
     // endereco += registro_dados->tamanho_registro;
-    // printf("Endereço: %lld\n", endereco);
+    // printf("Endereço: %ld\n", endereco);
     setProxRegDisponivel(registro_cabecalho_dados, endereco);
 
     //Incrementar o número de registros no cabeçalho
@@ -366,8 +366,8 @@ void inserir_final(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dad
     // Att o cabelçalho do arq de dados e reescrever ele(n registro depóniveis, prox_reg_disponivel)
     fseek(arquivo_dados, 0, SEEK_SET);  // Resetar o ponteiro do arquivo para o início
 
-    printf("\nTopo: %lld\n", getTopo(registro_cabecalho_dados));
-    printf("Prox: %lld\n", getProxRegDisponivel(registro_cabecalho_dados));
+    printf("\nTopo: %ld\n", getTopo(registro_cabecalho_dados));
+    printf("Prox: %ld\n", getProxRegDisponivel(registro_cabecalho_dados));
     printf("N Reg: %d\n", getnRegDisponiveis(registro_cabecalho_dados));
     printf("N Rem: %d\n", getnRemovidos(registro_cabecalho_dados));
 
@@ -378,7 +378,7 @@ void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro
 //Caso encontre um endereço viável, inserimos o registro no endereço encontrado
     registro_index->chave = registro_dados->id;
     registro_index->byteoffset = endereco;  
-    printf("Endereço encontrado: %lld\n", endereco);
+    printf("Endereço encontrado: %ld\n", endereco);
 
     // Uso o endereço encontrado pelo best-fit para inserir meu novo registro
     fseek(arquivo_dados, endereco, SEEK_SET);   
@@ -399,8 +399,8 @@ void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro
     // Att o cabelçalho do arq de dados e reescrever ele(n registro depóniveis, prox_reg_disponivel)
     fseek(arquivo_dados, 0, SEEK_SET);  // Resetar o ponteiro do arquivo para o início
 
-    printf("\nTopo: %lld\n", getTopo(registro_cabecalho_dados));
-    printf("Prox: %lld\n", getProxRegDisponivel(registro_cabecalho_dados));
+    printf("\nTopo: %ld\n", getTopo(registro_cabecalho_dados));
+    printf("Prox: %ld\n", getProxRegDisponivel(registro_cabecalho_dados));
     printf("N Reg: %d\n", getnRegDisponiveis(registro_cabecalho_dados));
     printf("N Rem: %d\n", getnRemovidos(registro_cabecalho_dados));
 
