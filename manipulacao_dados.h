@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-    #define UTILS_H
+#ifndef MANIPULACAO_DADOS_H
+    #define MANIPULACAO_DADOS_H
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -10,8 +10,6 @@
 
 typedef struct registro_cabecalho CABECALHO;
 typedef struct registro_dados DADOS;
-typedef struct busca_no BN;
-typedef struct busca_lista BL;
 
 
 /**
@@ -94,26 +92,6 @@ void scan_quote_string(char *str);
  * @return DADOS* Ponteiro para o registro de dados com os campos preenchidos
  */
 DADOS* split_linha(FILE* arquivo_in, const char* linha);
-
-/**
- * @brief recebe uma lista encadeada e libera todos nós assim como a lista em si
- * 
- * @param lista endereço do ponteiro da lista a ser liberada 
- * @return void
-*/
-void apagar_lista(BL** lista);
-
-/**
- * @brief recebe o endereço de um registro e adiciona ele a lista
- * 
- * Essa função aloca um nó e o inicializa contendo o registro passado, após isso o adiciona ao final da lista e
- * atualiza as variáveis da lista.
- * 
- * @param lista ponteiro para a lista em que o registro será adicionado
- * @param registro ponteiro para o registro que será adicionado na lista
- * @return void
-*/
-void add_lista(BL* lista, DADOS* registro);
 
 /**
  * @brief recebe o endereço do ponteiro da struct que guarda o cabeçalho e libera a struct

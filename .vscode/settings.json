@@ -6,6 +6,14 @@
         "bitset": "c",
         "chrono": "c",
         "algorithm": "c",
-        "funcionalidades_trab1.h": "c"
+        "funcionalidades_trab1.h": "c",
+        "utils_trab1.h": "c",
+        "getset_dados.h": "c",
+        "abordagem_dinamica.h": "c",
+        "manipulacao_dados.h": "c",
+        "vetorindex.h": "c",
+        "stdio.h": "c",
+        "lista_trabinr.h": "c",
+        "lista_trabintr.h": "c"
     }
 }

@@ -1,10 +1,8 @@
-//############################################################################
-/* As funções definidas neste arquivo estão explicadas no arquivo "funcionalidades-trab1.h". 
+/*############################################################################
+ As funções definidas neste arquivo estão explicadas no arquivo "funcionalidades_trab1.h". 
 Nesse código você encontrá comentários a nível de variáveis e procedimentos.
 ##############################################################################*/
 
-/*MODULARIZAR: TODO o inicio de abertura de arquivo e final na liveração de memória, criação e cópia do vetor de index
-  Melhorar: TIRAR REPETIÇÃO DAS STRUCTS DEFINIDAS*/
 
 #include "funcionalidades_trab1.h"
 
@@ -84,7 +82,7 @@ DADOS_INDEX* create_index(FILE *arquivo_index, FILE *arquivo_dados)
     DADOS *registro_dados = init_registro_dados();
 
     //Alocação e inicialização do vetor de indices
-    DADOS_INDEX *vetor_index = criar_vetor(TAMANHO_VETOR_INDEX);
+    DADOS_INDEX *vetor_index = criar_vetor();
 
     /*Loop para pegar os registros do arquivo de dados e escrever no arquivo de índices aqueles que não estão lógicamente removidos*/
     while (fread(&status, sizeof(char), 1, arquivo_dados) != 0)
@@ -92,18 +90,19 @@ DADOS_INDEX* create_index(FILE *arquivo_index, FILE *arquivo_dados)
         //
         fread(&tamanho_reg, sizeof(int), 1, arquivo_dados);
 
-        // Se o registro não foi removido, lemos os campos restantes e imprimimos na tela
+        // Se o registro não foi removido, lemos os campos restantes e inserimos no vetor de index
         if (status != '1')
         {
-            registro_index->byteoffset = (ftell(arquivo_dados) - 5); 
-            fread(&(registro_dados->prox_reg), sizeof(long int), 1, arquivo_dados);
-            fread(&(registro_dados->id), sizeof(int), 1, arquivo_dados);
+            registro_index->byteoffset = (ftell(arquivo_dados) - 5); //Lê o byteoffset do registro de dados (-5 pois já lemos o status e o tamanho do registro)
+            fread(&(registro_dados->prox_reg), sizeof(long int), 1, arquivo_dados); //Lê o campo de proximo registro (não usa, apenas para mover o ponteiro)
+            fread(&(registro_dados->id), sizeof(int), 1, arquivo_dados); 
             registro_index->chave = getID(registro_dados);
 
             fseek(arquivo_dados, tamanho_reg - 17, SEEK_CUR);
 
-            count_reg++;
+            count_reg++; //Incrementa o contador de registros
 
+            //Insere o registro no vetor de index
             inserir_ordenado(vetor_index, registro_index, count_reg);
         }
         else
@@ -119,8 +118,6 @@ DADOS_INDEX* create_index(FILE *arquivo_index, FILE *arquivo_dados)
     return vetor_index;
 }
 
-// Create index file
-// Para ordenar: Podemos inserir tudo em uma lista ordenada e depois escrever no arquivo
 void funcionalidade4()
 {
     // Auxiliador para pegar o tamanho do registro de dados que está sendo lido
@@ -134,22 +131,20 @@ void funcionalidade4()
 
     // Cria o arquivo de index no modo escrita binária
     FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "wb");
-    if (arquivo_index == NULL)
+    if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
     {
-        printf("Falha no processamento do arquivo.\n");
         return;
     }
 
-    // Abertura do arquivo de dados para leitura dos registros
+    // Abertura do arquivo de dados para leitura dos registros no modo binário
     FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "rb");
     if (arquivo_dados == NULL)
     {
         fclose(arquivo_index);
-        printf("Falha no processamento do arquivo.\n");
         return;
     }
 
-    // Ler o primeiro byte do arquivo de dados para verificar se está corrompido
+    // Ler o primeiro byte do arquivo de dados (status) para verificar se está corrompido ou não 
     CABECALHO *registro_cabecalho_dados = ler_cabecalho(arquivo_dados);
     char status = get_status(registro_cabecalho_dados);
     if (status == '0')
@@ -161,23 +156,30 @@ void funcionalidade4()
     }
 
     // Construção do arquivo de index
-    DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); //A função create index retorna um vetor de registros de index para que possamos utilizada em outras funcionalidades (5 e 6)
+    DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); 
+    // A função create index retorna um vetor de registros de index para que possamos utilizada em outras funcionalidades (5 e 6)
+
     escrever_vetor_index(vetor_index, arquivo_index);
+    // Essa função pega o vetor de index criado e o escreve no arquivo de index
+    
+    // Resetar o ponteiro do arquivo para o início
+    fseek(arquivo_index, 0, SEEK_SET); 
 
-    // Reescrever status do arquivo de index para 1
-    fseek(arquivo_index, 0, SEEK_SET); // Resetar o ponteiro do arquivo para o início
-
-    // Reescrita do status do arquivo de index para 1 (não corrompido)
-    // Colocamos aqui e não em create_index pois a função é reutilizada em outras funcionalidades e não podemos reescrever até inserir/remover todos os indices necessários
+    // Reescrever status do arquivo de index para 1 (Íntegro/Não corrompido):
     CABECALHO_INDEX *registro_cabecalho_index = (CABECALHO_INDEX *)malloc(sizeof(CABECALHO_INDEX));
     set_arquivo_index('1', registro_cabecalho_index, arquivo_index);
+    // Obs: Colocamos a reescrita aqui e não em create_index pois a função é reutilizada em outras funcionalidades e não podemos reescrever até inserir/remover todos os indices necessários
 
+    // Libera a memória alocada para as estruturas utilizadas
     apagar_vetor(&vetor_index);
     free(registro_cabecalho_dados);
     free(registro_cabecalho_index);
+
+    // Fecha os arquivos
     fclose(arquivo_dados);
     fclose(arquivo_index);
 
+    // Impressão do arquivo de index e de dados na tela
     binarioNaTela(arquivo_index_name);
 }
 
@@ -200,7 +202,6 @@ void funcionalidade5(void)
     FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "wb");
     if (arquivo_index == NULL)
     {
-        printf("Falha no processamento do arquivo.\n");
         return;
     }
 
@@ -209,7 +210,6 @@ void funcionalidade5(void)
     if (arquivo_dados == NULL)
     {
         fclose(arquivo_index);
-        printf("Falha no processamento do arquivo.\n");
         return;
     }
 
@@ -378,7 +378,7 @@ void funcionalidade5(void)
         
         
     }
-    //rescrever cabecalho
+    //Rescrever cabecalho
     fseek(arquivo_dados,0,SEEK_SET);
     escrever_cabecalho(arquivo_dados,registro_cabecalho_dados);
 
@@ -407,6 +407,7 @@ void funcionalidade5(void)
 
 void funcionalidade6(void)
 {
+    // Input do número de registros a serem inseridos nessa funcionalidade (para o loop)
     int num_insertons = 0;
 
     // Pega o input dos nomes dos arquivos de dados e index
@@ -415,22 +416,21 @@ void funcionalidade6(void)
     scanf("%s", arquivo_dados_name);
     scanf("%s", arquivo_index_name);
 
+    // Pega o número de registros a serem inseridos
     scanf("%d", &num_insertons);
 
     // Cria o arquivo de index no modo escrita binária
     FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "wb");
     if (arquivo_index == NULL)
     {
-        printf("Falha no processamento do arquivo.\n");
         return;
     }
 
-    // Abertura do arquivo de dados para leitura dos registros
-    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "r+b"); //ABre arq binario para leitura e escrita
+    // Abertura do arquivo de dados para leitura e escrita dos registros em modo binário.
+    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "r+b"); 
     if (arquivo_dados == NULL)
     {
         fclose(arquivo_index);
-        printf("Falha no processamento do arquivo.\n");
         return;
     }
 
@@ -446,80 +446,75 @@ void funcionalidade6(void)
         return;
     }
 
-    // Criação do arquivo de index (não escreve no arquivo ainda)
-    DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); // Puxa o arquivo de index para a memória principal por meio de um vetor de registros
+    // Puxa o arquivo de index para a memória principal por meio de um vetor de registros
+    DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); 
     
-    //Alocando as estruturas de dados a serem utilizadas.
+    //Alocando o regitro de index.
     DADOS_INDEX* registro_index = (DADOS_INDEX*)malloc(sizeof(DADOS_INDEX));
 
+    //Loop para realização das inserções
     for (int i = 0; i < num_insertons; i++)
     {
         // Alocar e ler o registro de dados do input
         DADOS* registro_dados = ler_input_dados();
 
-        printf("\nRegistro lido: %d\n", registro_dados->id);
-        printf("Registro lido: %d\n", registro_dados->idade);
-        printf("Registro lido: %s\n", registro_dados->nome);
-        printf("Registro lido: %s\n", registro_dados->nacionalidade);
-        printf("Registro lido: %s\n", registro_dados->clube);
-        printf("Tam registro: %d\n", registro_dados->tamanho_registro);
-        printf("Prox reg: %ld\n", registro_dados->prox_reg);
+        // LÓGICA DE REAPROVEITAMENTO DE ESPAÇO:
 
-        printf("\nTopo: %ld\n", getTopo(registro_cabecalho_dados));
-        printf("Prox: %ld\n", getProxRegDisponivel(registro_cabecalho_dados));
-        printf("N Reg: %d\n", getnRegDisponiveis(registro_cabecalho_dados));
-        printf("N Rem: %d\n", getnRemovidos(registro_cabecalho_dados));
-
-        // LÓGICA DE REAPROVEITAMENTO DE ESPAÇO
+        // Se o arquivo de dados não possui registros logicamente removidos, inserimos no final
         if (getTopo(registro_cabecalho_dados) == -1 && getnRemovidos(registro_cabecalho_dados) == 0) 
         {
-            //Verefica que o item que está sendo ordenado já existe no arquivo de indice
+            //Verifica se o item que está sendo inserido já existe no arquivo de indice (Evita inserções repetidas)
             if(busca_binaria_index(vetor_index, registro_dados->id, 0, count_reg-1)==-1){
-                printf("Registro ainda não inserido!\n");
+
+                //Inserção no final do arquivo de dados (sem reaproveitamento de espaço)
                 inserir_final(arquivo_dados, arquivo_index, registro_dados, registro_cabecalho_dados, vetor_index, registro_index);
             }
             else{
-                printf("Registro já inserido!\n");
+                //Na inserção repetida, não fazemos nada.
             }
         }
-        else
+        else //Há reaproveitamento de espaço!
         {
-            printf("Tenho reaproveitamento de espaço\n");
             //Verifica se o item que está sendo ordenado já existe no arquivo de indice
             if(busca_binaria_index(vetor_index, registro_dados->id, 0, count_reg-1)==-1){
-                printf("Registro ainda não inserido!\n");
-
-                // Como há registros logicamente removidos, temos que encontrar o endreço para inserção seguindo a estratégia best-fit:
+                // Como há registros logicamente removidos, temos que encontrar o endereço para inserção seguindo a estratégia best-fit:
                 long int endereco = best_fit(arquivo_dados, registro_dados, registro_cabecalho_dados, getTopo(registro_cabecalho_dados)); 
 
                 //Best-fit pode não encontrar nenhum endereço viável de inserção. Nesse caso, inserimos no final mesmo:
                 if(endereco == -1){
+                    //Sem reaproveitamento de espaço
                     inserir_final(arquivo_dados, arquivo_index, registro_dados, registro_cabecalho_dados, vetor_index, registro_index);
                 }
                 else{
+                    //Com reaproveitamento de espaço (best-fit)
                     insercao_dinamica(arquivo_dados, arquivo_index, registro_dados, registro_cabecalho_dados, vetor_index, registro_index, endereco);
                 }
             }
             else{
-                printf("Registro já inserido!\n");
+                //Na inserção repetida, não fazemos nada.
             }
         }
-        //apagar_registro(&registro_dados); //Arrumar essa função
+        apagar_registro(&registro_dados); //Arrumar essa função
     }
 
-    //Escrever os registros no arquivo de indice
+    //Escrever os registros no arquivo de indice (Vetor index já está ordenado com os novos registros, basta copiá-lo)
     escrever_vetor_index(vetor_index, arquivo_index);
 
-    //Reescrever status do arquivo de indice aqui
+    //Reescrever status do arquivo de indice
     fseek(arquivo_index, 0, SEEK_SET); // Resetar o ponteiro do arquivo para o início
-    CABECALHO_INDEX *registro_cabecalho_index = (CABECALHO_INDEX *)malloc(sizeof(CABECALHO_INDEX)); //Não é necessario alocar e passar o registro,
-    //mas fica mais claro o que estamos fazendo do que só escrever um char no arquivo de indice.
+    CABECALHO_INDEX *registro_cabecalho_index = (CABECALHO_INDEX *)malloc(sizeof(CABECALHO_INDEX)); 
     set_arquivo_index('1', registro_cabecalho_index, arquivo_index);
+
+    /*Obs:Não é necessario alocar e passar o registro como parâmetro,
+      mas fica mais claro o que estamos fazendo do que só escrever um char no arquivo de indice.*/
 
     // Liberar memória
     apagar_vetor(&vetor_index);
     free(registro_cabecalho_dados);
     free(registro_index);
+    free(registro_cabecalho_index);
+
+    // Fechar os arquivos
     fclose(arquivo_dados);
     fclose(arquivo_index);
 

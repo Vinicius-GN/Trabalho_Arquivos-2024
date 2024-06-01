@@ -1,22 +1,12 @@
-#ifndef UTILS_TRAB1_H
-    #define UTILS_TRAB1_H
+#ifndef GETSET_DADOS_H
+    #define GETSET_DADOS_H
 
-#include "utils.h"
-#include "funcionalidades_trab1.h"
-#include "vetorIndex.h"
+// Include dos headers necessários
+#include "manipulacao_dados.h"
 
+//Typedef das estruturas de dados para o arquivo de índice
+typedef struct registro_cabecalho_index CABECALHO_INDEX;
 typedef struct registro_dados_index DADOS_INDEX;
-
-/**
- * @brief Ler os dados de um registro de cabeçalho a ser inserido no arquivo de dados.
- * 
- * Essa função aloca e inicializar um registro de dados, lẽ as entradas do usuário por meio da função fornecida Scan_quote_string e retorna o registro de dados
- * com os valores lidos e o correto tratamento de campos nulos.
- * 
- * @param void 
- * @return DADOS*
- */
-DADOS* ler_input_dados(void);
 
 /**
  * @brief Pega o status do arquivo de dados salvo no registro de cabeçalho.
@@ -103,42 +93,22 @@ void set_topo(CABECALHO* registro, int n);
 void setProxRegDisponivel(CABECALHO* registro, long int n);
 
 /**
- * @brief 
+ * @brief Pega o valor do campo "tamanho" de um registro de dados cujo byteoffset é passado como parâmetro.
  * 
- * @param 
- * @return 
+ * @param endereco Byteoffset do endereço do registro de dados.
+ * @param arquivo_dados Ponteiro para o arquivo de dados.
+ * @return int Tamanho do registro de dados
  */
-long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim);
+int get_tam(long int endereco, FILE* arquivo_dados);
 
 /**
- * @brief 
+ * @brief Pega o valor do campo "prox_reg" de um registro de dados cujo byteoffset é passado como parâmetro.
  * 
- * @param 
- * @return 
+ * @param endereco Byteoffset do endereço do registro de dados.
+ * @param arquivo_dados Ponteiro para o arquivo de dados.
+ * @return long int Byteoffset do próximo registro de dados removido na lista.
  */
-void remover_dados(DADOS* aux,FILE* arquivo_dados,CABECALHO* cabecalho_dados, long int cur_byte_offset);
+long int get_prox(long int endereco, FILE* arquivo_dados);
 
-/**
- * @brief 
- * 
- * @param 
- * @return 
- */
-void inserir_final(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dados, CABECALHO* registro_cabecalho_dados, DADOS_INDEX* vetor_index, DADOS_INDEX* registro_index);
 
-/**
- * @brief 
- * 
- * @param 
- * @return 
- */
-void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro_dados, CABECALHO* registro_cabecalho_dados, DADOS_INDEX* vetor_index, DADOS_INDEX* registro_index, long int endereco);
-
-/**
- * @brief 
- * 
- * @param 
- * @return 
- */
-long int best_fit(FILE* arquivo_dados, DADOS* registro, CABECALHO* cabecalho, long int endereco);
 #endif

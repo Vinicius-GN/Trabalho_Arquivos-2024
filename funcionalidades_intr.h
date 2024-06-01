@@ -1,7 +1,11 @@
 #ifndef FUNCIONALIDADES_H
     #define FUNCIONALIDADES_H
 
-#include "utils.h"
+// Include dos headers necessários
+#include "manipulacao_dados.h"
+#include "lista_trabintr.h"
+
+//Typedef das estruturas de dados utilizadas para a busca de registros
 typedef struct registro_cabecalho CABECALHO;
 typedef struct registro_dados DADOS;
 typedef struct busca_no BN;

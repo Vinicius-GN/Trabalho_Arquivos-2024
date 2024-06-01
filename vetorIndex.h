@@ -2,31 +2,35 @@
     #define VETORINDEX_H
 
 #include "funcionalidades_trab1.h"
-#include "utils.h" 
+#include "manipulacao_dados.h" 
 #include <stdio.h>
 
-//Struct definitions for index file
+// Typedef das estruturas de dados para o arquivo de índice
 typedef struct no NO;
 typedef struct registro_dados_index DADOS_INDEX;
 typedef struct registro_cabecalho_index CABECALHO_INDEX;
 
-
 /**
- * @brief Criaçção da estrutura de um vetor de índices.
+ * @brief Criação da estrutura de um vetor de índices.
  * 
  * Essa estrutura de dados é essencial para a criação do arquivo de índices, uma vez que 
  * permite a inserção de todas as chaves de índice em um vetor ordenado, facilitando a posterior escrita
  * desses dados para o arquivo de índices.
  * 
- * @param 
+ * @param void
  * @return Vetor de índices alocado e inicializado.
  */
-DADOS_INDEX* criar_vetor(int tamanho);
+DADOS_INDEX* criar_vetor(void);
 
 /** 
- * @brief 
+ * @brief Insere um registro de index no Vetor de índices de forma ordenada 
  * 
- * @param 
+ * Esta abordagem de inserção ordenada é essencial para manter a ordenação do vetor de índices (por chave) 
+ * e garantir a correta escrita no arquivo de índices.
+ * 
+ * @param lista Ponteiro para o vetor de índices.
+ * @param registro Ponteiro para o registro a ser inserido.
+ * @param tamanho Tamanho do vetor de índices.
  * @return void
  */
 void inserir_ordenado(DADOS_INDEX* lista, DADOS_INDEX* registro, int tamanho);
@@ -78,6 +82,19 @@ void escrever_vetor_index(DADOS_INDEX* vetor_index, FILE* arquivo_index);
  * @return void
  */
 void set_arquivo_index(char status, CABECALHO_INDEX *cabecalho, FILE *arquivo);
+
+/**
+ * @brief Realiza uma busca binária no arquivo de indices para encontrar o registro com a chave passada como parâmetro.
+ * 
+ * Essa função é utilizada de forma a evitar que um registro seja inserido novamente e para buscas durante a remoção de registros.
+ * 
+ * @param vetor Vetor de índices.
+ * @param chave Chave a ser buscada.
+ * @param inicio Índice de início da busca.
+ * @param fim Índice de fim da busca.
+ * @return long int Byteoffset do registro com a chave buscada.
+ */
+long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim);
 
 
 #endif

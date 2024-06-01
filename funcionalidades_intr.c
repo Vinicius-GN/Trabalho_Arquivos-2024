@@ -1,12 +1,12 @@
 #include "funcionalidades_intr.h"
 
-/* As funções definidas neste arquivo estão explicadas no arquivo "utils.h". 
+/* As funções definidas neste arquivo estão explicadas no arquivo "manipulacao_dados.h". 
 Nesse código você encontrá comentários a nível de variáveis e procedimentos.*/
 
 //Definição da estrutura do cabeçalho, seguindo a ordem recomendada nas espeficiações do trabalho
 
-/*(As estruturas de dados foram definidas também no arquivo utils.c pois o conceito de TAD impede que, 
- com o include do utils.h, as estruturas sejam acessadas diretamente peas funcionalidades definidas)*/
+/*(As estruturas de dados foram definidas também no arquivo manipulacao_dados.c pois o conceito de TAD impede que, 
+ com o include do manipulacao_dados.h, as estruturas sejam acessadas diretamente peas funcionalidades definidas)*/
 struct registro_cabecalho{
     char status;
     long long int topo;
@@ -61,6 +61,7 @@ void funcionalidade1(void){
     //Inicializando o arquivo de entrada
     FILE* arquivo_in = abrir_arquivo(arquivo_in_name, "r");
     if(arquivo_in == NULL){
+        fclose(arquivo_out);
         apagar_cabecalho(&cabecalho);
         return;
     }
@@ -131,6 +132,17 @@ void funcionalidade2(void){
     fseek(arquivo_bin, 0, SEEK_SET);
     CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
 
+    //Verificamos se o arquivo está consistente
+    if(cabecalho->status == '0'){
+        fclose(arquivo_bin);
+        apagar_cabecalho(&cabecalho);
+        return;
+    }
+
+    //Atualizamos o status do arquivo para inconsistente enquanto há leitura
+    cabecalho->status = '0'; //Atualizamos o status do arquivo para inconsistente
+    escrever_cabecalho(arquivo_bin, cabecalho); //Função que escreve o cabeçalho no arquivo binário campo a campo
+
     //Alocação do registro de dados e tratamento de exceções caso a alocação falhe
     DADOS* registro = (DADOS*) malloc(sizeof(DADOS));
     if (registro == NULL){
@@ -162,6 +174,11 @@ void funcionalidade2(void){
     if(contador_registros == 0){
         printf("Registro inexistente.\n\n");
     }
+
+    //Atualizamos o status do arquivo para consistente após a leitura
+    cabecalho->status = '1'; //Atualizamos o status do arquivo para inconsistente
+    escrever_cabecalho(arquivo_bin, cabecalho); //Função que escreve o cabeçalho no arquivo binário campo a campo
+
     //Fechamento do arquivo binário e liberação da memória alocada para os registros
     fclose(arquivo_bin);
     apagar_registro(&registro);
@@ -187,6 +204,14 @@ void funcionalidade3(){
     }
     //lê o cabeçalho para corrigir a posição do ponteiro do arquivo
     CABECALHO* cabecalho = ler_cabecalho(arquivo_bin);
+
+    //Verificamos se o arquivo está consistente
+    if(cabecalho->status == '0'){
+        fclose(arquivo_bin);
+        apagar_cabecalho(&cabecalho);
+        return;
+    }
+
     //aloca o vetor de registros de parâmetros das buscas
     DADOS** buscas = (DADOS**) malloc(n_buscas*sizeof(DADOS*));
     //aloca e incializa um vetor responsável por checar se a busca deve ser realizada ou não

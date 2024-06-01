@@ -1,17 +1,17 @@
 #ifndef FUNCIONALIDADES_TRAB1_H
     #define FUNCIONALIDADES_TRAB1_H
 
-#include "utils.h" 
+// Include dos headers necessários
+#include "manipulacao_dados.h" 
 #include "vetorIndex.h"
-#include "utils_trab1.h"
+#include "abordagem_dinamica.h"
+#include "getset_dados.h"
 
-//Struct definitions for index file
+//Typedef das estruturas de dados para o arquivo de índice
 typedef struct registro_cabecalho_index CABECALHO_INDEX;
 typedef struct registro_dados_index DADOS_INDEX;
 
 #define TAMANHO_REGISTRO_INDEX 13 //Tamanho do registro de índice (13 bytes)
-#define TAMANHO_VETOR_INDEX 1050 //Tamanho do vetor de índices (1050 registros)
-
 
 //Function definitions
 

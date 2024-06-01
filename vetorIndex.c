@@ -5,6 +5,10 @@ Nesse código você encontrá comentários a nível de variáveis e procedimento
 
 #include "vetorIndex.h"
 
+//Tamanho inicial do vetor de índices (aumentado se necessário com realloc)
+int TAMANHO_VETOR_INDEX = 1050; //Tamanho do vetor de índices (1050 registros)
+
+
 //Permitir acesso direto aos dados da struct
 struct registro_dados_index {
     int chave;
@@ -16,9 +20,14 @@ struct registro_cabecalho_index{
     char status;
 };
 
-DADOS_INDEX* criar_vetor(int tamanho){
-    DADOS_INDEX* vetor = (DADOS_INDEX*)malloc(sizeof(DADOS_INDEX)*tamanho);
-    for(int i = 0; i < tamanho; i++){
+DADOS_INDEX* criar_vetor(){
+    //Aloca o vetor e inicializa os seus campos.
+    DADOS_INDEX* vetor = (DADOS_INDEX*)malloc(sizeof(DADOS_INDEX)*TAMANHO_VETOR_INDEX);
+
+    /*Obs: Nesse caso, optamos por inicializar o vetor com um tamanho pre-definido e realocar memória caso necessário, pois 
+      utilizar realloc para aumentar o tamanho do vetor a cada inserção seria computacionalmente mais custoso.*/
+
+    for(int i = 0; i < TAMANHO_VETOR_INDEX; i++){
         vetor[i].chave = -1;
         vetor[i].byteoffset = -1;
     }
@@ -36,18 +45,21 @@ void inserir_ordenado(DADOS_INDEX* vetor, DADOS_INDEX* registro, int tamanho){
         } else {
             // Realocação bem-sucedida!
             vetor = temp;
-            // Atualize o valor de TAMANHO_VETOR_INDEX se estiver mantendo controle do tamanho atual
-            //Att tamvetorindex
+            // Atualiza o valor de TAMANHO_VETOR_INDEX se estiver mantendo controle do tamanho atual
+            TAMANHO_VETOR_INDEX = tamanho * 2;
         }
     }
     
     for(int i = 0; i < tamanho;i++){
+        //Insere o registro de forma ordenada no vetor
         if(vetor[i].chave == -1){
+            //Insere no final
             vetor[i].chave = registro->chave;
             vetor[i].byteoffset = registro->byteoffset;
             break;
         }
         else{
+            //Insere no meio e reorganiza o vetor
             if(vetor[i].chave > registro->chave){
                 for(int j = tamanho-1; j > i; j--){
                     vetor[j].chave = vetor[j-1].chave;
@@ -124,3 +136,24 @@ void set_arquivo_index(char status, CABECALHO_INDEX *cabecalho, FILE *arquivo){
     fwrite(&cabecalho->status, sizeof(char), 1, arquivo);
 }
 
+long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim){
+    if(vetor == NULL){
+        return -1;
+    }
+    int pos = (inicio+fim)/2; //Cálculo de posição do meio para a busca binária
+    if(inicio <= fim){ //Condição para continuação da busca binária
+        if(vetor[pos].chave == chave){
+            //Encontrou a chave buscada
+            return vetor[pos].byteoffset;
+        }
+        else if(vetor[pos].chave > chave){
+            //Chave buscada está à esquerda (no vetor)
+            return busca_binaria_index(vetor, chave, inicio, pos-1);
+        }
+        else if(vetor[pos].chave < chave){
+            //Chave buscada está à direita (no vetor)
+            return busca_binaria_index(vetor, chave, pos+1, fim);
+        }
+    }
+    return -1;
+}
