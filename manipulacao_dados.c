@@ -30,7 +30,6 @@ struct registro_dados{
     ;
 };
 
-
 FILE* abrir_arquivo(const char* nome_arquivo, const char* modo){
 
     //Modularização para procedimento padrão de abertura de arquivos.

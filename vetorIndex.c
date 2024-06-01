@@ -157,3 +157,14 @@ long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim)
     }
     return -1;
 }
+
+// Função para liberar a memória alocada para os registros de index e dados
+void liberar_memoria(CABECALHO_INDEX **registro_cabecalho_index, DADOS_INDEX **registro_index, DADOS **registro_dados){
+    if(*registro_cabecalho_index != NULL)
+        free(*registro_cabecalho_index);
+
+    if(*registro_index != NULL)
+        free(*registro_index);
+
+    apagar_registro(registro_dados);
+}

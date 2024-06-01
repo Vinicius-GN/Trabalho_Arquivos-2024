@@ -55,17 +55,6 @@ int get_count_reg(){
     return count_reg;
 }
 
-// Função para liberar a memória alocada para os registros de index e dados
-void liberar_memoria(CABECALHO_INDEX **registro_cabecalho_index, DADOS_INDEX **registro_index, DADOS **registro_dados){
-    if(*registro_cabecalho_index != NULL)
-        free(*registro_cabecalho_index);
-
-    if(*registro_index != NULL)
-        free(*registro_index);
-
-    apagar_registro(registro_dados);
-}
-
 // Função para criar um registro de index do arquivo de dados
 DADOS_INDEX* create_index(FILE *arquivo_index, FILE *arquivo_dados)
 {

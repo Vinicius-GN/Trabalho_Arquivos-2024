@@ -97,4 +97,15 @@ void set_arquivo_index(char status, CABECALHO_INDEX *cabecalho, FILE *arquivo);
 long int busca_binaria_index(DADOS_INDEX* vetor, int chave, int inicio, int fim);
 
 
+/**
+ * @brief Função auxiliar para liberação de memória das estruturas de dados que incluem índice.
+ * 
+ * @param registro_cabecalho_index Duplo ponteiro para o registro de cabeçalho do arquivo de índices.
+ * @param registro_index Duplo ponteiro para o registro de índice.
+ * @param registro_dados Duplo ponteiro para o registro de dados.
+ * @return void
+*/
+void liberar_memoria(CABECALHO_INDEX **registro_cabecalho_index, DADOS_INDEX **registro_index, DADOS **registro_dados);
+
+
 #endif
