@@ -293,7 +293,7 @@ void funcionalidade5(void)
                 }
                 if(aux->tam_Nome!=0){
                     free(aux->nome);
-                    aux->nacionalidade=NULL;
+                    aux->nome=NULL;
                 }
                 if(aux->tam_Nacionalidade!=0){
                     free(aux->nacionalidade);
@@ -345,7 +345,7 @@ void funcionalidade5(void)
                     }
                      if(aux->tam_Nome!=0){
                         free(aux->nome);
-                        aux->nacionalidade=NULL;
+                        aux->nome=NULL;
                     }
                     if(aux->tam_Nacionalidade!=0){
                         free(aux->nacionalidade);
@@ -384,7 +384,6 @@ void funcionalidade5(void)
     apagar_vetor(&vetor_index);
     free(registro_cabecalho_dados);
     free(aux);
-    aux=NULL;
     apagar_registro(&parametros);
     fclose(arquivo_dados);
     fclose(arquivo_index);

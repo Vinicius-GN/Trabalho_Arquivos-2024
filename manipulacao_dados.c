@@ -220,6 +220,7 @@ void apagar_registro(DADOS** registro){
 
     //Liberação da memória alocada para os campos de tamanho variável e para o registro em si
     //O restante dos campos são de tamanho fixo, então são liberados junto com o registro
+
     free((*registro)->nome);
     if((*registro)->nome != NULL){
         (*registro)->nome = NULL;
@@ -229,7 +230,7 @@ void apagar_registro(DADOS** registro){
     if((*registro)->nacionalidade != NULL){
         (*registro)->nacionalidade = NULL;
     }
-
+    
     free((*registro)->clube);
     if((*registro)->clube != NULL){
         (*registro)->clube = NULL;
