@@ -20,18 +20,22 @@ typedef struct registro_dados_index DADOS_INDEX;
 DADOS* ler_input_dados(void);
 
 /**
- * @brief 
+ * @brief remove o registro lido do arquivo de dados e do indice, de forma que a lista de removidos fique em ordem crescente.
  * 
- * @param 
- * @return 
+ * @param aux ponteiro para o registro lido que será removido.
+ * @param arquivo_dados ponteiro para o arquivo de dados.
+ * @param cabecalho_dados ponteiro para o cabeçalho do arquivo de dados.
+ * @param cur_byte_offset posição atual dentro do arquivo de dados
+ * @return void
  */
 void remover_dados(DADOS* aux,FILE* arquivo_dados,CABECALHO* cabecalho_dados, long int cur_byte_offset);
 
 /**
- * @brief 
+ * @brief compara o registro que foi lido os parâmetros da busca e determina se ele deve ser removido.
  * 
- * @param 
- * @return 
+ * @param parametros ponteiro para o registro que guarda os pârametros da comparação para remoção.
+ * @param aux ponteiro do registro que acaba de ser lido.
+ * @return int
  */
 int comparar_registros(DADOS* parametros, DADOS* aux);
 
