@@ -116,32 +116,75 @@ DADOS* ler_input_dados()
     return registro_dados;
 }
 
+int comparar_registros(DADOS* parametros, DADOS* aux){
+    //assume que o registro será removido
+    int rem = 1;
+    //checa se a idade é um dos parâmetros
+    if(parametros->idade !=-1){
+        //caso a idade do registro lido seja diferende do parâmetro, desqualifica o registro para remoção
+        if(parametros->idade != aux->idade){
+            rem=0;
+        }
+    }
+    //checa se o nome é um dos parâmetros
+    if(strcmp(parametros->nome,"$")!=0){
+        //caso o nome do registro lido seja diferende do parâmetro, desqualifica o registro para remoção
+        if((aux->tam_Nome==0)||(strcmp(parametros->nome,aux->nome)!=0)){
+            rem=0;
+        }
+    }
+    //checa se a nacionalidade é um dos parâmetros
+    if(strcmp(parametros->nacionalidade,"$")!=0){
+        //caso a nacionalidade do registro lido seja diferende do parâmetro, desqualifica o registro para remoção
+        if((aux->tam_Nacionalidade==0)||(strcmp(parametros->nacionalidade,aux->nacionalidade)!=0)){
+            rem=0;
+        }
+    }
+    //checa se o clube é um dos parâmetros
+    if(strcmp(parametros->clube,"$")!=0){
+        //caso o clube do registro lido seja diferende do parâmetro, desqualifica o registro para remoção
+        if((aux->tam_Clube==0)||strcmp(parametros->clube,aux->clube)!=0){
+            rem=0;
+        }
+    }
+    return rem;
+}
+
 void remover_dados(DADOS* aux,FILE* arquivo_dados,CABECALHO* cabecalho_dados, long int cur_byte_offset){
+    //declara e inicializa as variáveis que serão usadas
     long int reg_rem= cur_byte_offset, reg_prox = cabecalho_dados->topo ,reg_ant = -1,reg_atual=-1;
     int tam_reg = aux-> tamanho_registro, tam_atual=0;
     char lixo;
+    //marca o registro como lógicamente removido
     aux->removido='1';
+    //percorre o arquivo de dados até achar um registro com tamanho maior que atual para realizar inserção ordenada
     while(reg_prox!=-1 && tam_reg > tam_atual){
         fseek(arquivo_dados,reg_prox,SEEK_SET);
         fread(&lixo,sizeof(char),1,arquivo_dados);
         fread(&tam_atual,sizeof(int),1,arquivo_dados);
+        //guarda a posição do registro anterior para que seu campo prox_reg possa ser alterado
         reg_ant = reg_atual;
         reg_atual = reg_prox;
         fread(&reg_prox,sizeof(long int),1,arquivo_dados);
     }
+    //caso em que o registro deve ser inserido no inicio da lista, altera o campo topo do cabeçalho
     if(reg_ant==-1 ){
         cabecalho_dados->topo = reg_rem;
     }
     else{
+        //altera o campo prox_reg do registro anterior
         fseek(arquivo_dados,reg_ant+sizeof(int)+sizeof(char),SEEK_SET);
         fwrite(&reg_rem,sizeof(long int),1,arquivo_dados);
     }
+        //altera os campos do registro que foi removido
         fseek(arquivo_dados,reg_rem,SEEK_SET);
         fwrite(&(aux->removido),sizeof(char),1,arquivo_dados);
         fwrite(&tam_reg,sizeof(int),1,arquivo_dados);
         fwrite(&reg_atual,sizeof(long int),1,arquivo_dados);
+        //altera os campos do cabeçalho
         cabecalho_dados->n_reg_removidos++;
         cabecalho_dados->n_reg_disponiveis--;
+        //reseta a posição do arquivo de dados para não atrapalhar as outras funções
         fseek(arquivo_dados,cur_byte_offset+tam_reg,SEEK_SET);
 
 }

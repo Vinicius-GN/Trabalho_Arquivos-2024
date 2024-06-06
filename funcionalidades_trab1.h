@@ -27,9 +27,15 @@ typedef struct registro_dados_index DADOS_INDEX;
 void funcionalidade4(void);
 
 /**
- * @brief 
+ * @brief remove os registros que correspondem com os parâmetros lidos do arquivo de dados e do arquivo de índice
  * 
- * @param 
+ * Essa função começa abrindo o arquivo de dados e fazendo a verificação do seu status e inicaliza-se o arquivo de índices por meio da função "create_index".
+ * Após isso são lidos os parâmetros para a exclusão com registros e feita uma busca, por indice caso o id seja um parâmetro e sequencial caso contrário,
+ * os registros encontrados são removidos lógicamente do arquivo de dados, sendo organizados de forma crescente para utilização do "best-fit",
+ * e removidos normalmente do índice.
+ * 
+ * 
+ * @param void
  * @return void
  */
 void funcionalidade5(void);

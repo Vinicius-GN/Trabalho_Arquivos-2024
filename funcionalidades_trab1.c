@@ -174,6 +174,7 @@ void funcionalidade4()
 
 void funcionalidade5(void)
 {
+    //declaração de variavéis usadas durante a remoção
     int num_remover = 0, num_campos = 0, rem;
     long int cur_byte_offset = 0;
     char campo[15];
@@ -216,28 +217,25 @@ void funcionalidade5(void)
     // Criação do arquivo de index (não escreve na memória ainda)
     DADOS_INDEX* vetor_index = create_index(arquivo_index, arquivo_dados); // Puxa o arquivo de index para a memória principal por meio de um vetor de registros
 
-
+    //alocação dos vedores utilizados para comparação
     DADOS* parametros = (DADOS*) malloc(sizeof(DADOS));
     DADOS* aux = (DADOS*) malloc(sizeof(DADOS));
 
-    parametros->id=-1;
-    parametros->idade= -1;
+    //alocação dos campos variáveis do registro que guarda os parâmetros
     parametros->nome = (char*) malloc(sizeof(char)*30);
-    strcpy(parametros->nome,"$");
     parametros->nacionalidade = (char*) malloc(sizeof(char)*30);
-    strcpy(parametros->nacionalidade,"$");
     parametros->clube = (char*) malloc(sizeof(char)*30);
-    strcpy(parametros->clube,"$");
     
     for (int i = 0; i < num_remover; i++)
     {
         scanf(" %d",&num_campos);
+        //inicialização dos campos do registro que guarda os parâmetros
         parametros->id=-1;
         parametros->idade= -1;
         strcpy(parametros->nome,"$");
         strcpy(parametros->nacionalidade,"$");
         strcpy(parametros->clube,"$");
-        //preenche os parâmetros do registro
+        //preenche os parâmetros que seram comparados do registro
         for(int j=0;j<num_campos;j++){
             scanf(" %s",campo);
             if(strcmp(campo,"id")==0){
@@ -256,41 +254,29 @@ void funcionalidade5(void)
                 scan_quote_string(parametros->clube);
             }
         }
+
+        //checa se deve realizar a busca pelo index ou a busca sequencial
         if(parametros->id != -1){
+            //realiza a busca sequencial
             cur_byte_offset = busca_binaria_index(vetor_index,parametros->id,0,count_reg-1);
             if(cur_byte_offset!=-1){
+                //se o registro foi encontrado no indice, le o registro e procede a remoção
                 fseek(arquivo_dados,cur_byte_offset,SEEK_SET);
                 fread(&(aux->removido), sizeof(char), 1, arquivo_dados);
                 fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
                 ler_registro(arquivo_dados,aux);
-                rem = 1;
-                if(parametros->idade !=-1){
-                    if(parametros->idade != aux->idade){
-                        rem=0;
-                    }
-                }
-                if(strcmp(parametros->nome,"$")!=0){
-                    if((aux->tam_Nome==0)||(strcmp(parametros->nome,aux->nome)!=0)){
-                        rem=0;
-                    }
-                }
-                if(strcmp(parametros->nacionalidade,"$")!=0){
-                    if((aux->tam_Nacionalidade==0)||(strcmp(parametros->nacionalidade,aux->nacionalidade)!=0)){
-                    rem=0;
-                    }
-                }
-                if(strcmp(parametros->clube,"$")!=0){
-                    if((aux->tam_Clube==0)||strcmp(parametros->clube,aux->clube)!=0){
-                    rem=0;
-                    }
-                }
+
+                //checa se o registro que acabou de ser lido deve ser removido com base nos outros possíveis parâmetros
+                rem = comparar_registros(parametros,aux);
                     
                 if(rem == 1){
+                    //remove o registro, tanto do arquivo de dados, quanto do indice
                     remover_dados(aux,arquivo_dados,registro_cabecalho_dados,cur_byte_offset);
                     remover_ordenado(vetor_index,aux->id,0,count_reg-1,count_reg);
                     count_reg--;
 
                 }
+                //libera os campos variaveis do registro auxiliar caso tiverem sido alocados
                 if(aux->tam_Nome!=0){
                     free(aux->nome);
                     aux->nome=NULL;
@@ -309,40 +295,25 @@ void funcionalidade5(void)
 
         }
         else{
+            //corrige a posição do arquivo de dados
             fseek(arquivo_dados,25,SEEK_SET);
             cur_byte_offset = 25;
+            //percorre o arquivo de dados inteiramente
             while(fread(&(aux->removido), sizeof(char), 1, arquivo_dados) != 0){
                 fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
                 if(aux->removido!='1'){
+                    //caso o registro não esteja já marcado como removido, lê o registro e checa se ele deve ser removido
                     ler_registro(arquivo_dados,aux);
-                    rem = 1;
-                    if(parametros->idade !=-1){
-                        if(parametros->idade != aux->idade){
-                            rem=0;
-                        }
-                    }
-                    if(strcmp(parametros->nome,"$")!=0){
-                        if((aux->tam_Nome==0)||(strcmp(parametros->nome,aux->nome)!=0)){
-                            rem=0;
-                        }
-                    }
-                    if(strcmp(parametros->nacionalidade,"$")!=0){
-                        if((aux->tam_Nacionalidade==0)||(strcmp(parametros->nacionalidade,aux->nacionalidade)!=0)){
-                        rem=0;
-                        }
-                    }
-                    if(strcmp(parametros->clube,"$")!=0){
-                        if((aux->tam_Clube==0)||strcmp(parametros->clube,aux->clube)!=0){
-                        rem=0;
-                        }
-                    }
+                    rem = comparar_registros(parametros,aux);
                     
                     if(rem == 1){
+                        //remove o registro, tanto do arquivo de dados, quanto do indice
                         remover_dados(aux,arquivo_dados,registro_cabecalho_dados,cur_byte_offset);
                         remover_ordenado(vetor_index,aux->id,0,count_reg-1,count_reg);
                         count_reg--;
 
                     }
+                    //libera os campos variaveis do registro auxiliar caso tiverem sido alocados
                      if(aux->tam_Nome!=0){
                         free(aux->nome);
                         aux->nome=NULL;
@@ -358,6 +329,7 @@ void funcionalidade5(void)
 
                 }
                 else{
+                //caso o registro já tenha sido removido
                 fseek(arquivo_dados, (aux->tamanho_registro)-5, SEEK_CUR);
                 }
                 cur_byte_offset += aux->tamanho_registro;

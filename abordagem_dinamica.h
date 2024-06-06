@@ -28,6 +28,14 @@ DADOS* ler_input_dados(void);
 void remover_dados(DADOS* aux,FILE* arquivo_dados,CABECALHO* cabecalho_dados, long int cur_byte_offset);
 
 /**
+ * @brief 
+ * 
+ * @param 
+ * @return 
+ */
+int comparar_registros(DADOS* parametros, DADOS* aux);
+
+/**
  * @brief Usa o byteoffset do registro de dados para inserir no final e atualiza o cabeçalho do arquivo de dados.
  * 
  * @param arquivo_dados Ponteiro para o arquivo de dados.
