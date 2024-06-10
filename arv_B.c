@@ -598,7 +598,7 @@ PROMOCAO inserir_arvB_recursivo(FILE* arquivo_index, ARVB* arvore, int RRN, int 
 
             //Esta função insere a chave e o byteoffset no nó folha e o reescreve no arquivo de indices baseando-se no valor do RRN
             insercao_noFolha(arquivo_index, no, RRN, pos, chave, byteoffset);
-            return;
+            return (PROMOCAO){.houvePromocao = false};
         }
 
     }
