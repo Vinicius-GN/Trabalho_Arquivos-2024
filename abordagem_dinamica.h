@@ -8,6 +8,8 @@
 
 typedef struct registro_dados_index DADOS_INDEX;
 
+//Trabalho 1 da disciplina de Organização de Arquivos
+
 /**
  * @brief Ler os dados de um registro de cabeçalho a ser inserido no arquivo de dados.
  * 

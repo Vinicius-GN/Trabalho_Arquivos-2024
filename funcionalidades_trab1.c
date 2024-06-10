@@ -3,6 +3,7 @@
 Nesse código você encontrá comentários a nível de variáveis e procedimentos.
 ##############################################################################*/
 
+//Trabalho 1 da disciplina de Organização de Arquivos
 
 #include "funcionalidades_trab1.h"
 
@@ -62,7 +63,7 @@ DADOS_INDEX* create_index(FILE *arquivo_index, FILE *arquivo_dados)
     int tamanho_reg = 0;
     count_reg = 0; //Reseta o tamanho do vetor de index
 
-    // Inicializa o status do registro de index como 0 na abertura ("corropido")
+    // Inicializa o status do registro de index como 0 na abertura ("corrompido")
     CABECALHO_INDEX *registro_cabecalho_index = (CABECALHO_INDEX *)malloc(sizeof(CABECALHO_INDEX));
     set_arquivo_index('0', registro_cabecalho_index, arquivo_index);
 

@@ -13,7 +13,7 @@ typedef struct registro_dados_index DADOS_INDEX;
 
 #define TAMANHO_REGISTRO_INDEX 13 //Tamanho do registro de índice (13 bytes)
 
-//Function definitions
+//Trabalho 1 da disciplina de Organização de Arquivos
 
 /**
  * @brief Cria um arquivo de índice simples primário, a partir de um arquivo de dados, cujo campo de busca é o ID.

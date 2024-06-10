@@ -5,6 +5,8 @@ Nesse código você encontrá comentários a nível de variáveis e procedimento
 
 #include "abordagem_dinamica.h"
 
+//Trabalho 1 da disciplina de Organização de Arquivos
+
 //Definição da estrutura de cabealho doo arquivo de índice
 struct registro_cabecalho_index
 {

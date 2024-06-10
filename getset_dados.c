@@ -1,7 +1,10 @@
+
 //############################################################################
 /* As funções definidas neste arquivo estão explicadas no arquivo "get&set_dados.h". 
 Nesse código você encontrá comentários a nível de variáveis e procedimentos.
 ##############################################################################*/
+
+//Trabalho 1 da disciplina de Organização de Arquivos
 
 #include "getset_dados.h"
 

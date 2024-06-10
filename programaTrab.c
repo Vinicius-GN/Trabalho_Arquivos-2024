@@ -1,7 +1,8 @@
 #include "funcionalidades_intr.h"
 #include "funcionalidades_trab1.h"
+#include "funcionalidades_arvB.h"
 
-/* Trabalho introdutório da disciplina de Organização de Arquivos 
+/* Trabalho 1 da disciplina de Organização de Arquivos 
 
 ##############################################################
     Alunos: Vinicius Gustierrez Neves          N°USP: 14749363
@@ -35,6 +36,22 @@ void interface(int command){
 
     case 6:
         funcionalidade6();
+        break;
+
+    case 7:
+        funcionalidade7();
+        break;
+
+    case 8:
+        funcionalidade8();
+        break;
+
+    case 9:
+        funcionalidade9();
+        break;
+
+    case 10:
+        funcionalidade10();
         break;
         
     default:

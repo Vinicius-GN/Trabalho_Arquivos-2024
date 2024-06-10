@@ -11,6 +11,7 @@
 typedef struct registro_cabecalho CABECALHO;
 typedef struct registro_dados DADOS;
 
+//Trabalho introdutório da disciplina de Organização de Arquivos
 
 /**
  * @brief Abre um arquivo no modo especificado e com o nome especificado 

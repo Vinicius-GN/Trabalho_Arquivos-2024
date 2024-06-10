@@ -5,6 +5,8 @@ Nesse código você encontrá comentários a nível de variáveis e procedimento
 
 #include "vetorIndex.h"
 
+//Trabalho 1 da disciplina de Organização de Arquivos
+
 //Tamanho inicial do vetor de índices (aumentado se necessário com realloc)
 int TAMANHO_VETOR_INDEX = 1050; //Tamanho do vetor de índices (1050 registros)
 

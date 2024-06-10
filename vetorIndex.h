@@ -10,6 +10,8 @@ typedef struct no NO;
 typedef struct registro_dados_index DADOS_INDEX;
 typedef struct registro_cabecalho_index CABECALHO_INDEX;
 
+//Trabalho 1 da disciplina de Organização de Arquivos
+
 /**
  * @brief Criação da estrutura de um vetor de índices.
  * 
