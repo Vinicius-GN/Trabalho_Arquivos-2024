@@ -7,6 +7,7 @@
 
 #define TAMANHO_NO 60
 #define MAX_NRO 3
+#define TAMANHO_CABECALHO 60
 
 //Typedef das estruturas de dados para o arquivo de índice
 typedef struct no_Arvb NO_ARVB;
@@ -25,7 +26,7 @@ typedef struct promocao_no PROMOCAO;
  * @param void
  * @return ARVB*
 */
-ARV_B * init_arvB(void);
+ARVB * init_arvB(void);
 
 /**
  * @brief Inicializa um nó da árvore B

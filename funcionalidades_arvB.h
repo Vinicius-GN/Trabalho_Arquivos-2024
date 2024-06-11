@@ -2,6 +2,7 @@
 #define FUNCIONALIDADES_ARVB
 
 #include "arv_B.h"
+#include "getset_dados.h"
 
 //Typedef das estruturas de dados para o arquivo de índice
 typedef struct no_Arvb NO_ARVB;

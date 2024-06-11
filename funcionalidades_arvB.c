@@ -62,14 +62,15 @@ void funcionalidade7 (void){
     scanf("%s", arquivo_index_name);
 
     // Cria o arquivo de index no modo escrita binária
-    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "wb");
+    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
     if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
     {
+        printf("Indice");
         return;
     }
 
     // Abertura do arquivo de dados para leitura dos registros no modo binário
-    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "r+b");
+    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "rb");
     if (arquivo_dados == NULL)
     {
         fclose(arquivo_index);
