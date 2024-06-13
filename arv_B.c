@@ -285,7 +285,7 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
         //P1, P2 e C1 ficam iguais
     }
     //Se pos = 3, a chave a ser inserida é a penútima de todas e o nó está cheio (tem que shifitar e splitar)
-    else if(pos = 3){
+    else if(pos == 3){
         printf("Caso 3 de split\n");
 
         //Inserção da chave do novo nó
@@ -306,7 +306,7 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
 
     }
     //Se pos = 4, a chave a ser inserida é a maior de todas e o nó está cheio (tem que shifitar e splitar)
-    else if(pos = 4){
+    else if(pos == 4){
         printf("Caso 4 de split\n");
 
         //Inserção da chave do novo nó
@@ -477,6 +477,7 @@ PROMOCAO inserir_arvB_recursivo(FILE* arquivo_index, ARVB* arvore, int RRN, int 
         return (PROMOCAO){.houvePromocao = false};
     }
 
+    
     //Encontamos o nó raiz e devemos inserir nele
     if(no->altura_No == 0){
         printf("Encontramos o nó raiz %d\n", RRN);
@@ -495,6 +496,7 @@ PROMOCAO inserir_arvB_recursivo(FILE* arquivo_index, ARVB* arvore, int RRN, int 
             promocao_falsa.byteOffsetPromovido = -1;
             promocao_falsa.novoNo = -1; //Esse é essencial para o split_no
 
+            printf("Pos de split = %d\n", pos);
             //Lógica para split dos nós e retorno da promoção
             PROMOCAO promover_no = split_no(arquivo_index, arvore, no, RRN, chave, pos, byteoffset, promocao_falsa);
 
@@ -662,7 +664,7 @@ void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *regist
 
             //Insere o registro na arvore B
             printf("Inserindo registro de ID = %d, byteoffset = %ld\n", chave, byteoffset);
-            if(count_registros <= 10){
+            if(count_registros <= 1000){
                 inserir_arvB(arquivo_index, arvore, chave, byteoffset); 
             }
         }
