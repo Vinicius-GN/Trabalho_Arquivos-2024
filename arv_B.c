@@ -122,9 +122,8 @@ void imprimir_no_arvB(NO_ARVB* no){
     printf("Filho 4: %d\n", no->P4);
 }
 
-NO_ARVB* ler_no_arvB(FILE* arquivo, int RRN){
+void ler_no_arvB(FILE* arquivo, int RRN, NO_ARVB* no){
     //Lê um nó da árvore B
-    NO_ARVB* no = init_no();
 
     //Vai para o RRN do nó a ser lido
     fseek(arquivo, RRN*TAMANHO_NO + TAMANHO_CABECALHO, SEEK_SET); //Ta vcerto isso?
@@ -165,6 +164,14 @@ void escrever_no_arvB(FILE* arquivo_indice, NO_ARVB* no){
 
     fflush(arquivo_indice);
 }
+ARVB* ler_cabecalho_arvB(FILE* arquivo){
+    ARVB* cabecalho = (ARVB*)malloc(sizeof(ARVB));
+    fread(&(cabecalho->status), sizeof(char), 1, arquivo);
+    fread(&(cabecalho->noRaiz), sizeof(int), 1, arquivo);
+    fread(&(cabecalho->proxRRN), sizeof(int), 1, arquivo);
+    fread(&(cabecalho->nroChaves), sizeof(int), 1, arquivo);
+    return cabecalho;
+}
 
 void escrever_cabecalho_arvB(FILE* arquivo, ARVB* arvore){
     //Escreve o cabeçalho da árvore B
@@ -193,6 +200,23 @@ int get_chave(NO_ARVB* no, int pos){
     }
     else if(pos == 3){
         return no->C3;
+    }
+    else{
+        printf("Posição inválida\n");
+        return -1;
+    }
+}
+
+long int get_valor(NO_ARVB* no, int pos){
+    //Retorna a chave do nó na posição pos
+    if(pos == 1){
+        return no->PR1;
+    }
+    else if(pos == 2){
+        return no->PR2;
+    }
+    else if(pos == 3){
+        return no->PR3;
     }
     else{
         printf("Posição inválida\n");
@@ -449,7 +473,8 @@ PROMOCAO inserir_arvB_recursivo(FILE* arquivo_index, ARVB* arvore, int RRN, int 
         return (PROMOCAO){.houvePromocao = false};
     }
     //Lê o nó atual
-    NO_ARVB* no = ler_no_arvB(arquivo_index, RRN);
+    NO_ARVB* no = init_no();
+    ler_no_arvB(arquivo_index, RRN, no);
     imprimir_no_arvB(no);
 
     //Encontra a posição correta para inserir a chave
@@ -573,7 +598,8 @@ void inserir_arvB(FILE* arquivo_index, ARVB* arvore, int chave, long int byteoff
             printf("Houve promoção na raiz\n");
 
             //Lemos a raiz atual para pegar a sua altura
-            NO_ARVB* raiz = ler_no_arvB(arquivo_index, arvore->noRaiz);
+            NO_ARVB* raiz = init_no();
+            ler_no_arvB(arquivo_index, arvore->noRaiz, raiz);
 
             printf("Raiz cheia, promoção na raiz!\n");
             //A inserir recursivo já faz o split e insire na raiz. Caso a raiz lá na função esteja cheia, a promoção é feita e a raiz é atualizada (criamos um novo nível nesse caso)
@@ -675,4 +701,36 @@ void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *regist
     apagar_registro(&registro_dados);
 
     return;
+}
+
+long int busca_rec_arvB(FILE *index, int id, int RRN, NO_ARVB* aux){
+    if(RRN==-1){
+        return -1;
+    }
+    else{
+        ler_no_arvB(index,RRN,aux);
+        int i = 0, chave;
+        for(; i<aux->nroChaves; i++){
+            chave = get_chave(aux,i+1);
+            if(id<chave){
+                return busca_rec_arvB(index,id,get_filho(aux,i+1),aux);
+            }
+            else if(id == chave){
+                return get_valor(aux, i+1);
+            }
+        }
+        return busca_rec_arvB(index,id,get_filho(aux,i+1),aux);
+    }
+
+}
+
+long int busca_arvB(FILE *index, int id){
+    rewind(index);
+    ARVB *cabecalho = ler_cabecalho_arvB(index);
+    NO_ARVB *aux = (NO_ARVB*)malloc(sizeof(NO_ARVB));
+    long int byte_offset = busca_rec_arvB(index,id,cabecalho->noRaiz,aux);
+    free(aux);
+    free(cabecalho);
+    return byte_offset;
+
 }

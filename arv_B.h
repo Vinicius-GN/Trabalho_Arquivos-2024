@@ -54,5 +54,15 @@ void set_status_arvB(FILE *arquivo, char status, ARVB *arv);
 //função de escrita desses dados na memória 
 void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *registro_cabecalho_dados);
 
+/**
+ * @brief Função que busca um registro por id na árvore B
+ * 
+ * @param index Arquivo de índice
+ * @param id id a ser buscado
+ * 
+ * @return long int;
+*/
+long int busca_arvB(FILE *index, int id);
+
 
 #endif
