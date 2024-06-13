@@ -246,22 +246,22 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
         printf("Caso 1 de split\n");
 
         //Inserção da chave do novo nó (antiga chave 3 do nó splitado)
-        no_novo->C1 = no_atual->C3;
-        no_novo->PR1 = no_atual->PR3;
+        no_novo->C1 = no_atual->C2;
+        no_novo->PR1 = no_atual->PR2;
+        no_novo->C2 = no_atual->C3;
+        no_novo->PR2 = no_atual->PR3;
         //Passa as chaves para a direita também
-        no_novo->P1 = no_atual->P3;
-        no_novo->P2 = no_atual->P4;
+        no_novo->P1 = no_atual->P2;
+        no_novo->P2 = no_atual->P3;
+        no_novo->P3 = no_atual->P4;
 
         //Dados do registro de indice a serem promovidos
-        promocao_de_no.chavePromovida = no_atual->C2;
-        promocao_de_no.byteOffsetPromovido = no_atual->PR2;
+        promocao_de_no.chavePromovida = no_atual->C1;
+        promocao_de_no.byteOffsetPromovido = no_atual->PR1;
 
         //Shift de chave, boffset e filhos para a direita
-        no_atual->C2 = no_atual->C1;
-        no_atual->PR2 = no_atual->PR1; 
         no_atual->C1 = chave; //Nova chave inserida
         no_atual->PR1 = byteoffset; //Novo byteoffset da chave inserida
-        no_atual->P3 = no_atual->P2;
         no_atual->P2 = promocao_recursiva.novoNo; //O filho mais à direita do nó atual é o novo nó criado na promoção de níveis inferirores
         //P1 fica igual
     }
@@ -269,65 +269,76 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
     else if(pos == 2){
         printf("Caso 2 de split\n");
 
-        //Inserção da chave do novo nó (antiga chave 3 do nó splitado)
-        no_novo->C1 = no_atual->C3;
-        no_novo->PR1 = no_atual->PR3;
+        //Inserção da chave do novo nó 
+        no_novo->C1 = no_atual->C2;
+        no_novo->PR1 = no_atual->PR2;
+        no_novo->C2 = no_atual->C3;
+        no_novo->PR2 = no_atual->PR3;
+        //Passa as chaves para a direita também
+        no_novo->P1 = promocao_recursiva.novoNo; //Novo nó produzido pelo split recursivo do nivel inferior
+        no_novo->P2 = no_atual->P3;
+        no_novo->P3 = no_atual->P4;
+
+        //A chave inserida é promovida (ocuparia a posição 2, que é promovida)
+        promocao_de_no.chavePromovida = chave;
+        promocao_de_no.byteOffsetPromovido = byteoffset;
+        //P1, P2 e C1 ficam iguais
+    }
+    //Se pos = 3, a chave a ser inserida é a penútima de todas e o nó está cheio (tem que shifitar e splitar)
+    else if(pos = 3){
+        printf("Caso 3 de split\n");
+
+        //Inserção da chave do novo nó
+        no_novo->C1 = chave;
+        no_novo->PR1 = byteoffset;
+        no_novo->C2 = no_atual->C3;
+        no_novo->PR2 = no_atual->PR3;
         //Passa as chaves para a direita também
         no_novo->P1 = no_atual->P3;
-        no_novo->P2 = no_atual->P4;
+        no_novo->P2 = promocao_recursiva.novoNo;
+        no_novo->P3 = no_atual->P4;
 
         //Dados do registro de indice a serem promovidos
         promocao_de_no.chavePromovida = no_atual->C2;
         promocao_de_no.byteOffsetPromovido = no_atual->PR2;
 
-        //Nova chave inserida
-        no_atual->P2 = chave;
-        no_atual->PR2 = byteoffset;
-        no_atual->P3 = promocao_recursiva.novoNo;//Novo nó produzido pelo split recursivo do nivel inferior
-
-    }
-    //Se pos = 3, a chave a ser inserida é a penútima de todas e o nó está cheio (tem que shifitar e splitar)
-    else if(pos = 3){
-        printf("Caso 3 de split\n");
-        //Inserção da chave do novo nó (antiga chave 3 do nó splitado)
-        no_novo->C1 = no_atual->C3;
-        no_novo->PR1 = no_atual->PR3;
-        //Passa as chaves para a direita também
-        no_novo->P1 = promocao_recursiva.novoNo; //Novo nó produzido pelo split recursivo do nivel inferior
-        no_novo->P2 = no_atual->P4; 
-
-        //As informaçoes a serem inseridas são promovidas pois ocupariam a 3° posição do nó (a qual tem sua chave promovida)
-        promocao_de_no.chavePromovida = chave;
-        promocao_de_no.byteOffsetPromovido = byteoffset;
-
-        //Nao precisamos mexer nas posições 1 e 2 nem nos filhos 1,2 e 3
+        //P1, P2, C1 ficam iguais
 
     }
     //Se pos = 4, a chave a ser inserida é a maior de todas e o nó está cheio (tem que shifitar e splitar)
     else if(pos = 4){
         printf("Caso 4 de split\n");
-        //Inserção da chave do novo nó (antiga chave 3 do nó splitado)
-        no_novo->C1 = chave; //Chave a ser inserida 
-        no_novo->PR1 = byteoffset; //Byteoffset a ser inserido
-        //Passa as chaves para a direita também
-        no_novo->P1 = no_atual->P4;
-        no_novo->P2 = promocao_recursiva.novoNo;//Novo nó produzido pelo split recursivo do nivel inferior
 
-        //As informaçoes a serem inseridas são promovidas pois ocupariam a 3° posição do nó (a qual tem sua chave promovida)
-        promocao_de_no.chavePromovida = no_atual->C3;
-        promocao_de_no.byteOffsetPromovido = no_atual->PR3;
+        //Inserção da chave do novo nó
+        no_novo->C1 = no_atual->C3;
+        no_novo->PR1 = no_atual->PR3;
+        no_novo->C2 = chave;
+        no_novo->PR2 = byteoffset;
+        //Passa as chaves para a direita também
+        no_novo->P1 = no_atual->P3;
+        no_novo->P2 = no_atual->P4;
+        no_novo->P3 = promocao_recursiva.novoNo;
+
+        //Dados do registro de indice a serem promovidos
+        promocao_de_no.chavePromovida = no_atual->C2;
+        promocao_de_no.byteOffsetPromovido = no_atual->PR2;
+
+        //P1, P2, C1 ficam iguais
         
     }
     
-   //Operações que sempre ocorrem para todos os casos
+   //Operações que sempre ocorrem para todos os casos (escolhendo a maior chave da direita para promoção)
     no_atual->C3 = -1; //Apaga a chave da pos3
     no_atual->PR3 = -1; //Apaga o byteoffset da chave de posição 3
+    no_atual->C2 = -1; //Apaga a chave da pos2
+    no_atual->PR2 = -1; //Apaga o byteoffset da chave de posição 2
+    no_atual->P3 = -1; //O último filho do nó atual é sempre nulo no split
     no_atual->P4 = -1; //O último filho do nó atual é sempre nulo no split
     promocao_de_no.novoNo = RRN_novo; //RRN do novo nó alocado será colocado na recursão
 
     //Atualização do número de chaves dos nós
-    no_novo->nroChaves++; //Incrementa o número de chaves do nó (normalmente 1)
-    no_atual->nroChaves--; //Decrementa o número de chaves do nó (normalmente vai para 2 agr) ############################3ENTRA NA DUVIDA:Em quais casos do slipt haverão mais caras à direita doq à esquerda?
+    no_novo->nroChaves = 2; //Incrementa o número de chaves do nó (normalmente 2)
+    no_atual->nroChaves = 1; //Decrementa o número de chaves do nó 
 
     //Escreve os nós no arquivo de índices
     fseek(arquivo, RRN*TAMANHO_NO + TAMANHO_CABECALHO, SEEK_SET); //Vai até a página de disco correspondente ao RRN
@@ -651,7 +662,7 @@ void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *regist
 
             //Insere o registro na arvore B
             printf("Inserindo registro de ID = %d, byteoffset = %ld\n", chave, byteoffset);
-            if(count_registros <= 5){
+            if(count_registros <= 10){
                 inserir_arvB(arquivo_index, arvore, chave, byteoffset); 
             }
         }
