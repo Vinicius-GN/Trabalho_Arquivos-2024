@@ -724,13 +724,11 @@ long int busca_rec_arvB(FILE *index, int id, int RRN, NO_ARVB* aux){
 
 }
 
-long int busca_arvB(FILE *index, int id){
+long int busca_arvB(FILE *index, int id,ARVB *cabecalho){
     rewind(index);
-    ARVB *cabecalho = ler_cabecalho_arvB(index);
     NO_ARVB *aux = (NO_ARVB*)malloc(sizeof(NO_ARVB));
     long int byte_offset = busca_rec_arvB(index,id,cabecalho->noRaiz,aux);
     free(aux);
-    free(cabecalho);
     return byte_offset;
 
 }
