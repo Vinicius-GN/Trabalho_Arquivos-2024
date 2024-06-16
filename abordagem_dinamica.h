@@ -91,4 +91,7 @@ void insercao_dinamica(FILE* arquivo_dados, FILE* arquivo_index, DADOS* registro
  * @return 
  */
 long int best_fit(FILE* arquivo_dados, DADOS* registro, CABECALHO* cabecalho, long int endereco);
+
+
+void reaproveitamento_dados(FILE* arquivo_dados, DADOS* registro_dados, long int endereco);
 #endif

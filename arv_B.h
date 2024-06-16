@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "manipulacao_dados.h"
+#include "abordagem_dinamica.h"
 
 #define TAMANHO_NO 60
 #define MAX_NRO 3
@@ -53,6 +54,39 @@ void set_status_arvB(FILE *arquivo, char status, ARVB *arv);
 //função de leitura dos dados de um nó na memória
 //função de escrita desses dados na memória 
 void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *registro_cabecalho_dados);
+
+/**
+ * @brief Função que busca um registro por id na árvore B
+ * 
+ * @param index Arquivo de índice
+ * @param id id a ser buscado
+ * 
+ * @return long int;
+*/
+long int busca_arvB(FILE *index, int id, ARVB *cabecalho);
+
+
+/**
+ * @brief Função que busca um registro por id na árvore B
+ * 
+ * @param index Arquivo de índice
+ * @param id id a ser buscado
+ * 
+ * @return ARVB*;
+*/
+ARVB* ler_cabecalho_arvB(FILE* arquivo);
+
+/**
+ * @brief Função que busca um registro por id na árvore B
+ * 
+ * @param index Arquivo de índice
+ * @param id id a ser buscado
+ * 
+ * @return ARVB*;
+*/
+void inserir_arvB(FILE* arquivo_index, ARVB* arvore, int chave, long int byteoffset);
+
+void escrever_cabecalho_arvB(FILE* arquivo, ARVB* arvore);
 
 
 #endif

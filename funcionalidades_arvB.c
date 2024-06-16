@@ -106,14 +106,342 @@ void funcionalidade7 (void){
 }
 
 void funcionalidade8 (void){
-    //Recuperação de dados na árvore B utilizando ID (simples)
+    int n, id;
+    long int alvo;
+    
+
+    // Pega o input dos nomes dos arquivos de dados e index
+    char arquivo_dados_name[50];
+    char arquivo_index_name[50];
+    scanf("%s", arquivo_dados_name);
+    scanf("%s", arquivo_index_name);
+    
+
+    // Cria o arquivo de index no modo escrita binária
+    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
+    if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
+    {
+        return;
+    }
+
+    // Abertura do arquivo de dados para leitura dos registros no modo binário
+    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "rb");
+    if (arquivo_dados == NULL)
+    {
+        fclose(arquivo_index);
+        return;
+    }
+
+    CABECALHO *registro_cabecalho_dados = ler_cabecalho(arquivo_dados);
+    char status = get_status(registro_cabecalho_dados);
+    if (status == '0')
+    {
+        fclose(arquivo_dados);
+        fclose(arquivo_index);
+        printf("Falha no processamento do arquivo.\n");
+        return;
+    }
+
+    construcao_arvB(arquivo_dados, arquivo_index, registro_cabecalho_dados);
+    rewind(arquivo_index);
+    ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
+
+    DADOS* aux = malloc(sizeof(DADOS));
+    scanf(" %d",&n);
+
+    for(int i = 0; i<n;i++){
+        scanf(" %d");
+        scanf(" %s");
+        scanf(" %d",&id);
+        rewind(arquivo_index);
+        printf("busca %d\n\n", i+1);
+        alvo = busca_arvB(arquivo_index,id,cabecalho_arvb);
+        if(alvo != -1){
+            fseek(arquivo_dados, alvo, SEEK_SET);
+            ler_registro(arquivo_dados,aux);
+            print_registro(aux);
+        }
+        else{
+            printf("Registro inexistente.\n\n");
+        }
+    }
+
+    //libera a memória
+    apagar_cabecalho(&registro_cabecalho_dados);
+    free(cabecalho_arvb);
+    free(aux);
+
+    // Fecha os arquivos
+    fclose(arquivo_dados);
+    fclose(arquivo_index);
+
 }
 
 void funcionalidade9 (void){
-    //Recuperação dos DADOS de registros que satisfaçam os campos solicitados (parece ser simples)
-}
+    //declaração de variáveis usadas na busca
+    int num_buscas = 0, num_campos = 0, comp, existente;
+    long int alvo;
+    char campo[15];
 
-void funcionalidade10 (void){
-    //Inserção de novos registros na arv_B e arquivo de dados (A função de inserção com reaporveitamento 
-    //de espaço já esta pronta e a de inserção na árvore B provavelmente vai estar)
+    // Pega o input dos nomes dos arquivos de dados e index
+    char arquivo_dados_name[50];
+    char arquivo_index_name[50];
+    scanf("%s", arquivo_dados_name);
+    scanf("%s", arquivo_index_name);
+
+    // Cria o arquivo de index no modo escrita binária
+    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
+    if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
+    {
+        return;
+    }
+
+    // Abertura do arquivo de dados para leitura dos registros no modo binário
+    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "rb");
+    if (arquivo_dados == NULL)
+    {
+        fclose(arquivo_index);
+        return;
+    }
+
+    CABECALHO *registro_cabecalho_dados = ler_cabecalho(arquivo_dados);
+    char status = get_status(registro_cabecalho_dados);
+    if (status == '0')
+    {
+        fclose(arquivo_dados);
+        fclose(arquivo_index);
+        printf("Falha no processamento do arquivo.\n");
+        return;
+    }
+
+    //construção do arquivo de index
+    construcao_arvB(arquivo_dados, arquivo_index, registro_cabecalho_dados);
+    rewind(arquivo_index);
+    ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
+
+    //alocação dos vedores utilizados para comparação
+    DADOS* parametros = (DADOS*) malloc(sizeof(DADOS));
+    DADOS* aux = (DADOS*) malloc(sizeof(DADOS));
+
+    //alocação dos campos variáveis do registro que guarda os parâmetros
+    parametros->nome = (char*) malloc(sizeof(char)*30);
+    parametros->nacionalidade = (char*) malloc(sizeof(char)*30);
+    parametros->clube = (char*) malloc(sizeof(char)*30);
+    
+    for (int i = 0; i < num_buscas; i++)
+    {
+        existente = 0;
+        scanf(" %d",&num_campos);
+        //inicialização dos campos do registro que guarda os parâmetros
+        parametros->id=-1;
+        parametros->idade= -1;
+        strcpy(parametros->nome,"$");
+        strcpy(parametros->nacionalidade,"$");
+        strcpy(parametros->clube,"$");
+        //preenche os parâmetros que seram comparados do registro
+        for(int j=0;j<num_campos;j++){
+            scanf(" %s",campo);
+            if(strcmp(campo,"id")==0){
+                scanf(" %d",&parametros->id);
+            }
+            else if(strcmp(campo,"idade")==0){
+                scanf(" %d",&parametros->idade);
+            }
+            else if(strcmp(campo,"nomeJogador")==0){
+                scan_quote_string(parametros->nome);
+            }
+            else if(strcmp(campo,"nacionalidade")==0){
+                scan_quote_string(parametros->nacionalidade);
+            }
+            else if(strcmp(campo,"nomeClube")==0){
+                scan_quote_string(parametros->clube);
+            }
+        }
+
+        printf("busca %d\n\n", i+1);
+
+        //checa se deve realizar a busca pelo index ou a busca sequencial
+        if(parametros->id != -1){
+            //realiza a busca sequencial
+            alvo = busca_arvB(arquivo_index,parametros->id,cabecalho_arvb);
+            if(alvo!=-1){
+                //se o registro foi encontrado no indice, le o registro e procede a remoção
+                fseek(arquivo_dados,alvo,SEEK_SET);
+                fread(&(aux->removido), sizeof(char), 1, arquivo_dados);
+                fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
+                ler_registro(arquivo_dados,aux);
+
+                //checa se o registro que acabou de ser lido deve ser removido com base nos outros possíveis parâmetros
+                comp = comparar_registros(parametros,aux);
+                    
+                if(comp == 1){
+                    print_registro(aux);
+                    existente = 1;
+                }
+                //libera os campos variaveis do registro auxiliar caso tiverem sido alocados e não impressos
+                if(aux->nome!=NULL){
+                    free(aux->nome);
+                    aux->nome=NULL;
+                }
+                if(aux->nacionalidade!=NULL){
+                    free(aux->nacionalidade);
+                    aux->nacionalidade=NULL;
+                }
+                if(aux->clube=NULL){
+                    free(aux->clube);
+                    aux->clube=NULL;
+                }
+                    
+
+            }
+
+        }
+        else{
+            //corrige a posição do arquivo de dados
+            fseek(arquivo_dados,25,SEEK_SET);
+            //percorre o arquivo de dados inteiramente
+            while(fread(&(aux->removido), sizeof(char), 1, arquivo_dados) != 0){
+                fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
+                if(aux->removido!='1'){
+                    //caso o registro não esteja já marcado como removido, lê o registro e checa se ele deve ser removido
+                    ler_registro(arquivo_dados,aux);
+                    comp = comparar_registros(parametros,aux);
+                    
+                    if(comp == 1){
+                        existente = 1;
+                        print_registro(aux);
+                    }
+                    //libera os campos variaveis do registro auxiliar caso tiverem sido alocados e não impressos
+                    if(aux->nome!=NULL){
+                        free(aux->nome);
+                        aux->nome=NULL;
+                    }
+                    if(aux->nacionalidade!=NULL){
+                        free(aux->nacionalidade);
+                        aux->nacionalidade=NULL;
+                    }
+                    if(aux->clube=NULL){
+                        free(aux->clube);
+                        aux->clube=NULL;
+                    }
+
+                }
+                else{
+                //caso o registro já tenha sido removido
+                fseek(arquivo_dados, (aux->tamanho_registro)-5, SEEK_CUR);
+                }
+            }
+        }
+        if(existente == 0){
+            printf("Registro inexistente.\n\n");
+        }
+    }  
+
+    free(registro_cabecalho_dados);
+    free(aux);
+    free(cabecalho_arvb);
+    apagar_registro(&parametros);
+
+     // Fecha os arquivos
+    fclose(arquivo_dados);
+    fclose(arquivo_index);
+
+}
+    
+
+void funcionalidade10(void){
+    //variaveis usadas na inserção
+    int num_insert;
+    long int endereco;
+    DADOS* aux;
+
+    // Pega o input dos nomes dos arquivos de dados e index
+    char arquivo_dados_name[50];
+    char arquivo_index_name[50];
+    scanf(" %s", arquivo_dados_name);
+    scanf(" %s", arquivo_index_name);
+
+        // Cria o arquivo de index no modo escrita binária
+    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
+    if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
+    {
+        return;
+    }
+
+    // Abertura do arquivo de dados para leitura dos registros no modo binário
+    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "rb");
+    if (arquivo_dados == NULL)
+    {
+        fclose(arquivo_index);
+        return;
+    }
+
+    CABECALHO *registro_cabecalho_dados = ler_cabecalho(arquivo_dados);
+    char status = get_status(registro_cabecalho_dados);
+    if (status == '0')
+    {
+        fclose(arquivo_dados);
+        fclose(arquivo_index);
+        printf("Falha no processamento do arquivo.\n");
+        return;
+    }
+    rewind(arquivo_dados);
+    registro_cabecalho_dados->status = '0';
+    escrever_cabecalho(arquivo_dados,registro_cabecalho_dados);
+
+    construcao_arvB(arquivo_dados, arquivo_index, registro_cabecalho_dados);
+    rewind(arquivo_index);
+    ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
+    cabecalho_arvb->status='0';
+    escrever_cabecalho_arvB(arquivo_index,ler_cabecalho_arvB);
+
+    
+
+    scanf(" %d",&num_insert);
+
+    for(int i = 0;i<num_insert;i++){
+        aux = ler_input_dados;
+        if(busca_arvB(arquivo_index,aux->id,cabecalho_arvb)==-1){
+            if(registro_cabecalho_dados->n_reg_removidos==0){
+                endereco=registro_cabecalho_dados->prox_reg_disponivel;
+                fseek(arquivo_dados,endereco,SEEK_SET);
+                escrever_registro_dados(aux,arquivo_dados);
+                registro_cabecalho_dados->prox_reg_disponivel= endereco + aux->tamanho_registro;
+                registro_cabecalho_dados->n_reg_disponiveis++;
+                inserir_arvB(arquivo_index,cabecalho_arvb,aux->id,endereco);
+            }
+            else{
+                endereco = best_fit(arquivo_dados,aux,registro_cabecalho_dados,registro_cabecalho_dados->topo);
+                if(endereco != -1){
+                    reaproveitamento_dados(arquivo_dados, aux, endereco);
+                    registro_cabecalho_dados->n_reg_disponiveis++;
+                    registro_cabecalho_dados->n_reg_removidos++;
+                    inserir_arvB(arquivo_index,cabecalho_arvb,aux->id,endereco);
+                }
+                else{
+                    endereco=registro_cabecalho_dados->prox_reg_disponivel;
+                    fseek(arquivo_dados,endereco,SEEK_SET);
+                    escrever_registro_dados(aux,arquivo_dados);
+                    registro_cabecalho_dados->prox_reg_disponivel= endereco + aux->tamanho_registro;
+                    registro_cabecalho_dados->n_reg_disponiveis++;
+                    inserir_arvB(arquivo_index,cabecalho_arvb,aux->id,endereco);
+                }
+            }
+        }
+        apagar_registro(&aux);
+    }
+
+    rewind(arquivo_index);
+    rewind(arquivo_dados);
+    registro_cabecalho_dados->status = '1';
+    cabecalho_arvb->status = '1';
+    escrever_cabecalho(arquivo_dados,registro_cabecalho_dados);
+    escrever_cabecalho_arvB(arquivo_index,cabecalho_arvb);
+
+    apagar_cabecalho(&registro_cabecalho_dados);
+    free(cabecalho_arvb);
+
+    fclose(arquivo_dados);
+    fclose(arquivo_index);
+
 }
