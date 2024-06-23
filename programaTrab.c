@@ -2,7 +2,7 @@
 #include "funcionalidades_trab1.h"
 #include "funcionalidades_arvB.h"
 
-/* Trabalho 1 da disciplina de Organização de Arquivos 
+/* Trabalho 2 da disciplina de Organização de Arquivos 
 
 ##############################################################
     Alunos: Vinicius Gustierrez Neves          N°USP: 14749363

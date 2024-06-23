@@ -1,6 +1,7 @@
 #include "manipulacao_dados.h"
 
 //Trabalho introdutório da disciplina de Organização de Arquivos
+
 //############################################################################
 /* As funções definidas neste arquivo estão explicadas no arquivo "manipulacao_dados.h". 
 Nesse código você encontrá comentários a nível de variáveis e procedimentos.

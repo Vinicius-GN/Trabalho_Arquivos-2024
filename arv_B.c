@@ -1,11 +1,20 @@
 #include "arv_B.h"
 
+//Trabalho prático 2 da disciplina de Organização de Arquivos
+
 //############################################################################
 /* As funções definidas neste arquivo estão explicadas no arquivo "arv_B.h". 
 Nesse código você encontrá comentários a nível de variáveis e procedimentos.*/
 //############################################################################
 
-//Definição da struct da árvore B
+/*
+##############################################################
+    Alunos: Vinicius Gustierrez Neves          N°USP: 14749363
+            Augusto Cavalcante Barbosa Pereira N°USP: 14651531
+##############################################################
+*/
+
+//Definição da estrutura de cabeçalho da árvore B
 struct arvB{
     char status; //Atualizado no inicio e no final da execução de "contrucao_arvB"
     int noRaiz; // Atualizado quando há promoção na raiz
@@ -14,7 +23,7 @@ struct arvB{
     char lixo[47]; //Caracteres para preenchimento "$" dos 60bytes de cada nó
 };
 
-//Definição da struct dos nós dessa árvore que conterão as informações dos registros de dados disponíveis 
+//Definição da estrutura dos nós dessa árvore que conterão as informações dos registros de dados disponíveis 
 struct no_Arvb{
     //Informações do nó
     int altura_No;
@@ -51,6 +60,7 @@ struct registro_dados{
     ;
 };
 
+//Definição da estrutura de cabeçalho do arquivo de dados
 struct registro_cabecalho{
     char status;
     long int topo;
@@ -102,74 +112,23 @@ NO_ARVB * init_no(void){
     no->P3 = -1;
     no->P4 = -1;
 
+    //Retorna o nó inicializado
     return no;
 }
 
-
-void imprimir_no_arvB(NO_ARVB* no){
-    //Imprime o nó
-    printf("Altura do nó: %d\n", no->altura_No);
-    printf("Número de chaves: %d\n", no->nroChaves);
-    printf("Chave 1: %d\n", no->C1);
-    printf("Byteoffset 1: %ld\n", no->PR1);
-    printf("Chave 2: %d\n", no->C2);
-    printf("Byteoffset 2: %ld\n", no->PR2);
-    printf("Chave 3: %d\n", no->C3);
-    printf("Byteoffset 3: %ld\n", no->PR3);
-    printf("Filho 1: %d\n", no->P1);
-    printf("Filho 2: %d\n", no->P2);
-    printf("Filho 3: %d\n", no->P3);
-    printf("Filho 4: %d\n", no->P4);
-}
-
-void ler_no_arvB(FILE* arquivo, int RRN, NO_ARVB* no){
-    //Lê um nó da árvore B
-
-    //Vai para o RRN do nó a ser lido
-    fseek(arquivo, RRN*TAMANHO_NO + TAMANHO_CABECALHO, SEEK_SET); //Ta vcerto isso?
-    printf("Posição do ponteiro do arquivo: %ld\n", ftell(arquivo));
-
-    //Lê as informações do nó
-    fread(&(no->altura_No), sizeof(int), 1, arquivo);
-    fread(&(no->nroChaves), sizeof(int), 1, arquivo);
-    fread(&(no->C1), sizeof(int), 1, arquivo);
-    fread(&(no->PR1), sizeof(long int), 1, arquivo);
-    fread(&(no->C2), sizeof(int), 1, arquivo);
-    fread(&(no->PR2), sizeof(long int), 1, arquivo);
-    fread(&(no->C3), sizeof(int), 1, arquivo);
-    fread(&(no->PR3), sizeof(long int), 1, arquivo);
-    fread(&(no->P1), sizeof(int), 1, arquivo);
-    fread(&(no->P2), sizeof(int), 1, arquivo);
-    fread(&(no->P3), sizeof(int), 1, arquivo);
-    fread(&(no->P4), sizeof(int), 1, arquivo);
-
-    return no;
-}
-
-void escrever_no_arvB(FILE* arquivo_indice, NO_ARVB* no){
-    printf("\n%ld\n", ftell(arquivo_indice));
-    //Escreve um nó da árvore B
-    fwrite(&(no->altura_No), sizeof(int), 1, arquivo_indice);
-    fwrite(&(no->nroChaves), sizeof(int), 1, arquivo_indice);
-    fwrite(&(no->C1), sizeof(int), 1, arquivo_indice);
-    fwrite(&(no->PR1), sizeof(long int), 1, arquivo_indice);
-    fwrite(&(no->C2), sizeof(int), 1, arquivo_indice);
-    fwrite(&(no->PR2), sizeof(long int), 1, arquivo_indice);
-    fwrite(&(no->C3), sizeof(int), 1, arquivo_indice);
-    fwrite(&(no->PR3), sizeof(long int), 1, arquivo_indice);
-    fwrite(&(no->P1), sizeof(int), 1, arquivo_indice);
-    fwrite(&(no->P2), sizeof(int), 1, arquivo_indice);
-    fwrite(&(no->P3), sizeof(int), 1, arquivo_indice);
-    fwrite(&(no->P4), sizeof(int), 1, arquivo_indice);
-
-    fflush(arquivo_indice);
-}
 ARVB* ler_cabecalho_arvB(FILE* arquivo){
+    //Aloca memória para o cabeçalho da árvore B
     ARVB* cabecalho = (ARVB*)malloc(sizeof(ARVB));
+
+    //Lê o cabeçalho da árvore B
     fread(&(cabecalho->status), sizeof(char), 1, arquivo);
     fread(&(cabecalho->noRaiz), sizeof(int), 1, arquivo);
     fread(&(cabecalho->proxRRN), sizeof(int), 1, arquivo);
     fread(&(cabecalho->nroChaves), sizeof(int), 1, arquivo);
+    //Lê o lixo de preenchimento do cabeçalho
+    //fread(&(cabecalho->lixo), sizeof(char), 47, arquivo);
+
+    //Retorna o cabeçalho lido
     return cabecalho;
 }
 
@@ -183,65 +142,12 @@ void escrever_cabecalho_arvB(FILE* arquivo, ARVB* arvore){
 }
 
 void set_status_arvB(FILE *arquivo, char status, ARVB *arv){
-    //Set status (Arquivo, registro de cabeçalho, status)
+    //Altera o status do arquivo de índices
     arv->status = status;
     fseek(arquivo, 0, SEEK_SET);
+
+    //Reescreve o cabeçalho no arquivo de índices
     escrever_cabecalho_arvB(arquivo, arv);
-}
-
-
-int get_chave(NO_ARVB* no, int pos){
-    //Retorna a chave do nó na posição pos
-    if(pos == 1){
-        return no->C1;
-    }
-    else if(pos == 2){
-        return no->C2;
-    }
-    else if(pos == 3){
-        return no->C3;
-    }
-    else{
-        printf("Posição inválida\n");
-        return -1;
-    }
-}
-
-long int get_valor(NO_ARVB* no, int pos){
-    //Retorna a chave do nó na posição pos
-    if(pos == 1){
-        return no->PR1;
-    }
-    else if(pos == 2){
-        return no->PR2;
-    }
-    else if(pos == 3){
-        return no->PR3;
-    }
-    else{
-        printf("Posição inválida\n");
-        return -1;
-    }
-}
-
-int get_filho(NO_ARVB* no, int pos){
-    //Retorna o filho do nó na posição pos
-    if(pos == 1){
-        return no->P1;
-    }
-    else if(pos == 2){
-        return no->P2;
-    }
-    else if(pos == 3){
-        return no->P3;
-    }
-    else if(pos == 4){
-        return no->P4;
-    }
-    else{
-        printf("Posição inválida do filho\n");
-        return -1;
-    }
 }
 
 PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int chave, int pos, long int byteoffset, PROMOCAO promocao_recursiva){
@@ -249,25 +155,21 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
     //Inicialização do novo nó a ser criado
     NO_ARVB* no_novo = init_no();
 
-    printf("Splitando o nó %d\n", RRN);
-    printf("O novo nó tem RRN igual a %d\n", arvore->proxRRN);
-
     //Determinação do RRN do novo nó
     int RRN_novo = arvore->proxRRN; //RRN do novo nó
     arvore->proxRRN = arvore->proxRRN + 1; //Incrementa o próximo RRN disponível
 
     //Preenchimento do novo nó
     no_novo-> altura_No = no_atual->altura_No; //A altura do novo nó é a mesma do nó atual
-    no_novo->nroChaves = 1; //O novo nó terá apenas uma chave no split 
+    no_novo->nroChaves = 1; //O novo nó (à direita) terá apenas uma chave no split, seguindo o algoritmo desejado
 
     //Estrutura de promoção do nó para retorno
     PROMOCAO promocao_de_no; 
-    promocao_de_no.houvePromocao = true; 
+    promocao_de_no.houvePromocao = true; //Houve promoção no nó (resultante do Split)
 
     //Tratando as possibilidades de split por meio do valor de "pos"
     //Se pos = 1, a chave a ser inserida é a menor de todas e o nó está cheio (tem quue shifitar e splitar)
     if(pos == 1){
-        printf("Caso 1 de split\n");
 
         //Inserção da chave do novo nó (antiga chave 3 do nó splitado)
         no_novo->C1 = no_atual->C2;
@@ -291,7 +193,6 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
     }
     //Se pos = 2, a chave a ser inserida é a do meio e o nó está cheio (tem que shifitar e splitar)
     else if(pos == 2){
-        printf("Caso 2 de split\n");
 
         //Inserção da chave do novo nó 
         no_novo->C1 = no_atual->C2;
@@ -310,7 +211,6 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
     }
     //Se pos = 3, a chave a ser inserida é a penútima de todas e o nó está cheio (tem que shifitar e splitar)
     else if(pos == 3){
-        printf("Caso 3 de split\n");
 
         //Inserção da chave do novo nó
         no_novo->C1 = chave;
@@ -329,9 +229,8 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
         //P1, P2, C1 ficam iguais
 
     }
-    //Se pos = 4, a chave a ser inserida é a maior de todas e o nó está cheio (tem que shifitar e splitar)
+    //Se pos = 4, a chave a ser inserida é a maior de todas e o nó está cheio 
     else if(pos == 4){
-        printf("Caso 4 de split\n");
 
         //Inserção da chave do novo nó
         no_novo->C1 = no_atual->C3;
@@ -371,16 +270,17 @@ PROMOCAO split_no(FILE* arquivo, ARVB* arvore, NO_ARVB* no_atual, int RRN, int c
     escrever_no_arvB(arquivo, no_novo); //Escreve o novo nó
 
     //Libera a memória alocada para os nós
-    free(no_novo);
-    free(no_atual);
+    apagar_no(&no_atual);
+    apagar_no(&no_novo);
     return promocao_de_no;
 }
 
 void inserir_noInterno(FILE* arquivo, NO_ARVB* no, int RRN, int pos, int chave, long int byteoffset, int filho){
     //Insere a chave e o byteoffset na posição correta
+
+    //Tratamento dos casos de inserção baseada na posição correta de inserção da chave
     if(pos == 1){
-        printf("Inserindo na posição 1 do nó interno\n");
-        //Shifta os as chaves e boff para a direita
+        //Shifta as chaves e byteoffset dos registros para a direita
         no->C3 = no->C2;
         no->PR3 = no->PR2;
         no->C2 = no->C1;
@@ -390,15 +290,14 @@ void inserir_noInterno(FILE* arquivo, NO_ARVB* no, int RRN, int pos, int chave, 
         no->C1 = chave;
         no->PR1 = byteoffset;
 
-        //Shifta os filhos para a direita e salva o novo nó do split
+        //Shifta os filhos para a direita e salva o novo nó resultante do split da recursão
         no->P4 = no->P3;
         no->P3 = no->P2;
         no->P2 = filho;
     }
     else if(pos == 2){
-        printf("Inserindo na posição 2 do nó interno\n");
 
-        //Shifta os as chaves e boff para a direita
+        //Shifta as chaves e byteoffset dos registros para a direita
         no->C3 = no->C2;
         no->PR3 = no->PR2;
 
@@ -406,18 +305,17 @@ void inserir_noInterno(FILE* arquivo, NO_ARVB* no, int RRN, int pos, int chave, 
         no->C2 = chave;
         no->PR2 = byteoffset;
 
-        //Shifta os filhos para a direita e salva o novo nó do split
+        //Shifta os filhos para a direita e salva o novo nó resultante do split da recursão
         no->P4 = no->P3;
         no->P3 = filho;
     }
     else if(pos == 3){
-        printf("Inserindo na posição 3 do nó interno\n");
 
         //Insere a chave e o byteoffset na posição correta e não precisa shiftar
         no->C3 = chave;
         no->PR3 = byteoffset;
 
-        //Shifta os filhos para a direita e salva o novo nó do split
+        //Salva o novo nó resultante do split da recursão
         no->P4 = filho;
     }
 
@@ -426,16 +324,15 @@ void inserir_noInterno(FILE* arquivo, NO_ARVB* no, int RRN, int pos, int chave, 
 
     //Escreve o nó no arquivo de índices
     fseek(arquivo, RRN*TAMANHO_NO + TAMANHO_CABECALHO, SEEK_SET); //Vai até a página de disco correspondente ao RRN
-    escrever_no_arvB(arquivo, no);
-    free(no);
+    escrever_no_arvB(arquivo, no); //Escreve o nó no arquivo de índices
+    apagar_no(&no); //Libera a memória alocada para o nó
     return;
 }
 
 void insercao_noFolha(FILE* arquivo, NO_ARVB* no, int RRN, int pos, int chave, long int byteoffset){
     //Insere a chave e o byteoffset na posição correta
     if(pos == 1){
-        printf("Inserindo na posição 1 do nó folha\n");
-        //Shifta os as chaves e boff para a direita
+        //Shifta os as chaves e byteoffset para a direita
         no->C3 = no->C2;
         no->PR3 = no->PR2;
         no->C2 = no->C1;
@@ -446,7 +343,6 @@ void insercao_noFolha(FILE* arquivo, NO_ARVB* no, int RRN, int pos, int chave, l
         no->PR1 = byteoffset;
     }
     else if(pos == 2){
-        printf("Inserindo na posição 2 do nó folha\n");
 
         //Shifta os as chaves e boff para a direita
         no->C3 = no->C2;
@@ -457,14 +353,13 @@ void insercao_noFolha(FILE* arquivo, NO_ARVB* no, int RRN, int pos, int chave, l
         no->PR2 = byteoffset;
     }
     else if(pos == 3){
-        printf("Inserindo na posição 3 do nó folha\n");
 
         //Insere a chave e o byteoffset na posição correta e não precisa shiftar
         no->C3 = chave;
         no->PR3 = byteoffset;
     }
 
-    //Não precisa shiftar os filhos, pois é um nó folha
+    //Não precisa shiftar os filhos e nem inserir o nó criado em um split e passado recursivamente, pois é um nó folha.
 
     //Incrementa o número de chaves do nó
     no->nroChaves = no->nroChaves + 1;
@@ -474,46 +369,45 @@ void insercao_noFolha(FILE* arquivo, NO_ARVB* no, int RRN, int pos, int chave, l
     escrever_no_arvB(arquivo, no);
 
     //Libera a memória alocada para o nó
-    free(no);
+    apagar_no(&no);
     return;
 }
 
 PROMOCAO inserir_arvB_recursivo(FILE* arquivo_index, ARVB* arvore, int RRN, int chave, long int byteoffset){
+    //Função recursiva para inserção de registros na árvore B
+
+    //Verifica se o RRN é válido
     if(RRN == -1){
         printf("Algo deu errado\n");
         return (PROMOCAO){.houvePromocao = false};
     }
+
     //Lê o nó atual
     NO_ARVB* no = init_no();
     ler_no_arvB(arquivo_index, RRN, no);
-    imprimir_no_arvB(no);
+    // imprimir_no_arvB(no); //Caso deseje imprimir o nó atual, descomente essa linha
 
     //Encontra a posição correta para inserir a chave
     //Se pos =  4, a chave é maior que todas as chaves do nó e o nó está cheio
     int pos = 1;
     for(; pos <= no->nroChaves && chave > get_chave(no, pos); pos++){} 
 
-    printf("%d é a posição de inserção recomendada\n", pos);
-
-    //Verificação se a chave já existe
+    //Verificação se a chave já existe para evitar inserção repetida
     if (pos <= no->nroChaves && chave == get_chave(no, pos)) {
-        printf("Chave já inserida\n");
         // Chave já existe e sai da função
+        apagar_no(&no);
         return (PROMOCAO){.houvePromocao = false};
     }
-
     
     //Encontamos o nó raiz e devemos inserir nele
     if(no->altura_No == 0){
-        printf("Encontramos o nó raiz %d\n", RRN);
-        printf("A chave %d deve ser inserida no lugar de %d, na posição %d\n", chave, get_chave(no, pos), pos);
 
         ///Verificaçaõ se o nó folha encontrado para inserção está cheio
         if(no->nroChaves == MAX_NRO){
-            printf("Nó folha %d cheio", RRN);
 
-            /*Como a função split_no leva em consideração inserção de chaves em nós que não são folhas, ou seja,
-            reseultados de splits de níveis inferiores que foram propagados, precisamos criar uma estrutura de promoção "falsa"*/
+            /*Como a função split_no leva em consideração resultados de splits de níveis inferiores que
+            foram propagados por meio da estrutura "PROMOCAO", precisamos criar uma estrutura de promoção "falsa" 
+            para splitar corretamente o nó folha:*/
 
             PROMOCAO promocao_falsa;
             promocao_falsa.houvePromocao = false;
@@ -521,17 +415,14 @@ PROMOCAO inserir_arvB_recursivo(FILE* arquivo_index, ARVB* arvore, int RRN, int 
             promocao_falsa.byteOffsetPromovido = -1;
             promocao_falsa.novoNo = -1; //Esse é essencial para o split_no
 
-            printf("Pos de split = %d\n", pos);
-            //Lógica para split dos nós e retorno da promoção
+            //Lógica para split dos nós e retorno da promoção (libera a memória internamente)
             PROMOCAO promover_no = split_no(arquivo_index, arvore, no, RRN, chave, pos, byteoffset, promocao_falsa);
-
             //Retornar a promoção recursivamente
             return promover_no; 
         }
 
         else{
             //Nó folha não está cheio, então podemos inserir a chave e o byteoffset normal
-            printf("Nó folha %d ainda não cheio", RRN);
 
             //Esta função insere a chave e o byteoffset no nó folha e o reescreve no arquivo de indices baseando-se no valor do RRN
             insercao_noFolha(arquivo_index, no, RRN, pos, chave, byteoffset);
@@ -541,11 +432,11 @@ PROMOCAO inserir_arvB_recursivo(FILE* arquivo_index, ARVB* arvore, int RRN, int 
     }
     //Caso contrário, temos que chamar recursivamente para encontrar o nó folha para inserção
     else{
-        printf("Chamando recursivamente para filho de RRN %d q é %d", RRN, get_filho(no, pos));
+        //A função "get_filho" retorna o RRN do nó filho para o qual a busca pelo nó folha deve continuar
         PROMOCAO promocao_de_no = inserir_arvB_recursivo(arquivo_index, arvore, get_filho(no, pos), chave, byteoffset);
-
+        
+        //Verifica se houve promoção no nó filho
         if(promocao_de_no.houvePromocao){
-            printf("Houve promoção no nó de RRN = %d\n", RRN);
 
             //Lógica para encontrar a posição correta para inserir a chave e o byteoffset promovidos na recursão
             pos = 1;
@@ -553,34 +444,32 @@ PROMOCAO inserir_arvB_recursivo(FILE* arquivo_index, ARVB* arvore, int RRN, int 
 
             //Verifica se o nó atual está cheio
             if(no->nroChaves < MAX_NRO){
-                printf("Nó ainda não está cheio para a promoção, mete bala. Pos = %d\n", pos);
-
-                //Pos nunca é 4, então o nó não está cheio e podemos inserir a chave e o byteoffset promovidos
 
                 //Essa função insere o registro de indice no nó interno e salva o novo filho criado no split, ainda reescreve o nó no arquivo de indices
                 inserir_noInterno(arquivo_index, no, RRN, pos, promocao_de_no.chavePromovida, promocao_de_no.byteOffsetPromovido, promocao_de_no.novoNo);
-                
+                //apagar_no(&no);
                 return (PROMOCAO){.houvePromocao = false};
             }
             else{
-                printf("Nó cheio também, promoção para cima!\n");
+                //Nó interno está cheio, então precisamos splitar o nó
 
                 //Já com o valor de pos, chamamos o split
                 //Split: Insere o nó promovido pela recursão, aloca o novo nó do split atual e retorna a promoção para o nível superior (chave, boffset e RRN do novo nó)
                 PROMOCAO promover_no = split_no(arquivo_index, arvore, no, RRN, promocao_de_no.chavePromovida, pos, promocao_de_no.byteOffsetPromovido, promocao_de_no);
-
                 //Retornar a promoção
                 return promover_no; 
             }
         }   
     }
+
+    //Caso não haja promoção, liberamos a memória alocada para o nó e retornamos que não houve promoção
+    apagar_no(&no);
     return (PROMOCAO){.houvePromocao = false};
 }
 
 void inserir_arvB(FILE* arquivo_index, ARVB* arvore, int chave, long int byteoffset){
     //Verifica se a árvore está vazia
     if(arvore->noRaiz == -1){
-        printf("Estou criando o nó raiz, %d, %ld\n", chave, byteoffset);
         //Cria um novo nó com a chave e o byteoffset
         NO_ARVB* no = init_no();
         no->nroChaves = 1;
@@ -595,32 +484,27 @@ void inserir_arvB(FILE* arquivo_index, ARVB* arvore, int chave, long int byteoff
 
         //Vai para o RRN do nó raiz
         fseek(arquivo_index, arvore->noRaiz*TAMANHO_NO + TAMANHO_CABECALHO, SEEK_SET); //Somamos o + TAMANHO_CABECALHO para pular o cabeçalho  e tratar corretamente os bytesoffset dos RRNs
-        printf("Posição de escrita = %d", arvore->noRaiz*TAMANHO_NO + TAMANHO_CABECALHO);
         escrever_no_arvB(arquivo_index, no);
 
         //Libera a memória alocada para o nó
-        free(no);
+        apagar_no(&no);
     }
     else{
         //Caso a árvore não esteja vazia, chama a função de inserção recursiva
-        printf("Inserir recursivamente\n");
         PROMOCAO promocao_de_no = inserir_arvB_recursivo(arquivo_index, arvore, arvore->noRaiz, chave, byteoffset);
 
         //Verfica se houve promoção na raiz (nesse caso, a raiz é atualizada)
         if(promocao_de_no.houvePromocao){
-            printf("Houve promoção na raiz\n");
 
             //Lemos a raiz atual para pegar a sua altura
             NO_ARVB* raiz = init_no();
             ler_no_arvB(arquivo_index, arvore->noRaiz, raiz);
 
-            printf("Raiz cheia, promoção na raiz!\n");
             //A inserir recursivo já faz o split e insire na raiz. Caso a raiz lá na função esteja cheia, a promoção é feita e a raiz é atualizada (criamos um novo nível nesse caso)
             NO_ARVB* nova_raiz = init_no();
 
             //Usa uma nova página de disco para a nova raiz
             int RRN_nova_raiz = arvore->proxRRN;
-            printf("Nova raiz com RRN = %d\n", RRN_nova_raiz);
             arvore->proxRRN = arvore->proxRRN + 1; //Att a próxima RRN disponível
 
             //Inicialização da nova raiz
@@ -656,7 +540,6 @@ void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *regist
 
     //Verifica se há registros disponíveis no arquivo de dados para a construção da arvoreB
     if(registro_cabecalho_dados->n_reg_disponiveis == 0){
-        printf("Não há registros de dados para a construção do arquivo de index");
         return;
     }
 
@@ -689,10 +572,7 @@ void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *regist
             count_registros++;
 
             //Insere o registro na arvore B
-            printf("Inserindo registro de ID = %d, byteoffset = %ld\n", chave, byteoffset);
-            if(count_registros <= 1000){
-                inserir_arvB(arquivo_index, arvore, chave, byteoffset); 
-            }
+            inserir_arvB(arquivo_index, arvore, chave, byteoffset); 
         }
         else
         {
@@ -703,16 +583,15 @@ void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *regist
 
     //Atualiza o número de chaves da árvore baseado no número de registros inseridos
     arvore->nroChaves = count_registros;    
-    printf("Numero de chaves é: %d\n", count_registros);
 
-    //Reescreve o status do arquivo de indices
-    fseek(arquivo_index, 0, SEEK_SET);
+    //Reescreve o status do arquivo de indices para consistente ao final da construção
     set_status_arvB(arquivo_index, '1', arvore); //Reescreve o cabeçalho todo, mudando o status para consistente
 
     // Libera a memória alocada para os registros
     free(arvore);
+    arvore = NULL;
     apagar_registro(&registro_dados);
-
+    
     return;
 }
 

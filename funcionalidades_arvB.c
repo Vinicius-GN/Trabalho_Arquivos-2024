@@ -1,6 +1,20 @@
 #include "funcionalidades_arvB.h"
 
-//Definição da struct da árvore B
+//Trabalho prático 2 da disciplina de Organização de Arquivos
+
+//##########################################################################################
+/* As funções definidas neste arquivo estão explicadas no arquivo "funcionalidades_arvB.h". 
+Nesse código você encontrá comentários a nível de variáveis e procedimentos.*/
+//##########################################################################################
+
+/*
+##############################################################
+    Alunos: Vinicius Gustierrez Neves          N°USP: 14749363
+            Augusto Cavalcante Barbosa Pereira N°USP: 14651531
+##############################################################
+*/
+
+//Definição da estrutura de cabeçalho da árvore B
 struct arvB{
     char status;
     int noRaiz;
@@ -9,7 +23,7 @@ struct arvB{
     char lixo[47]; //Caracteres para preenchimento "$" dos 60bytes de cada nó
 };
 
-//Definição da struct dos nós dessa árvore que conterão as informações dos registros de dados disponíveis 
+//Definição da estrutura dos nós dessa árvore que conterão as informações dos registros de dados disponíveis 
 struct no_Arvb{
     //Informações do nó
     int altura_No;
@@ -46,6 +60,7 @@ struct registro_dados{
     ;
 };
 
+//Definição da estrutura do registro de cabeçalho do arquivo de dados
 struct registro_cabecalho{
     char status;
     long int topo;
@@ -65,7 +80,6 @@ void funcionalidade7 (void){
     FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
     if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
     {
-        printf("Indice");
         return;
     }
 
@@ -106,7 +120,7 @@ void funcionalidade7 (void){
 }
 
 void funcionalidade8 (void){
-    int n, id;
+    int n, id, getbuffer;
     long int alvo;
     
 
@@ -148,9 +162,9 @@ void funcionalidade8 (void){
 
     DADOS* aux = malloc(sizeof(DADOS));
     scanf(" %d",&n);
-
+    //OPORRA O QUE TA ACONTECENDO? NÃO É MAIS FÁCIL LER AS PARADAS DIRETO NA FUNÇÃO ACIMA??
     for(int i = 0; i<n;i++){
-        scanf(" %d");
+        scanf(" %d", &getbuffer);
         scanf(" %s");
         scanf(" %d",&id);
         rewind(arquivo_index);
@@ -353,7 +367,7 @@ void funcionalidade10(void){
     //variaveis usadas na inserção
     int num_insert;
     long int endereco;
-    DADOS* aux;
+    DADOS* aux = NULL;
 
     // Pega o input dos nomes dos arquivos de dados e index
     char arquivo_dados_name[50];
@@ -393,14 +407,12 @@ void funcionalidade10(void){
     rewind(arquivo_index);
     ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
     cabecalho_arvb->status='0';
-    escrever_cabecalho_arvB(arquivo_index,ler_cabecalho_arvB);
-
-    
+    escrever_cabecalho_arvB(arquivo_index,cabecalho_arvb);
 
     scanf(" %d",&num_insert);
 
     for(int i = 0;i<num_insert;i++){
-        aux = ler_input_dados;
+        aux = ler_input_dados();
         if(busca_arvB(arquivo_index,aux->id,cabecalho_arvb)==-1){
             if(registro_cabecalho_dados->n_reg_removidos==0){
                 endereco=registro_cabecalho_dados->prox_reg_disponivel;
