@@ -36,7 +36,8 @@ funcionalidades_arvB.o: funcionalidades_arvB.c
 
 copy:
 	rm -f b1.bin indice.bin
-	cp "/home/vinicius/Desktop/arquivos/files/binario4.bin" "/home/vinicius/Desktop/trabalho_arquivos/b1.bin"
+	cp "/home/vinicius/Desktop/arquivos/files/binario8.bin" "/home/vinicius/Desktop/trabalho_arquivos/b1.bin"
+	cp "/home/vinicius/Desktop/arquivos/files/indice8.bin" "/home/vinicius/Desktop/trabalho_arquivos/indice.bin"
 
 clean:
 	rm -f programaTrab programaTrab.o manipulacao_dados.o funcionalidades_intr.o funcionalidades_trab1.o vetorIndex.o abordagem_dinamica.o getset_dados.o lista_trabintr.o arv_B.o funcionalidades_arvB.o utils_arvB.o

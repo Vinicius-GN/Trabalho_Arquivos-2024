@@ -119,37 +119,30 @@ void funcionalidade7 (void){
     binarioNaTela(arquivo_index_name);
 }
 
-void funcionalidade8 (void){
-    int n, id, getbuffer;
+void funcionalidade8(void) {
+    int n, id;
     long int alvo;
-    
 
-    // Pega o input dos nomes dos arquivos de dados e index
+    // Recebe os nomes dos arquivos de entrada
     char arquivo_dados_name[50];
     char arquivo_index_name[50];
     scanf("%s", arquivo_dados_name);
     scanf("%s", arquivo_index_name);
-    
 
-    // Cria o arquivo de index no modo escrita binária
     FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
-    if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
-    {
+    if (arquivo_index == NULL) {
         return;
     }
 
-    // Abertura do arquivo de dados para leitura dos registros no modo binário
     FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "rb");
-    if (arquivo_dados == NULL)
-    {
+    if (arquivo_dados == NULL) {
         fclose(arquivo_index);
         return;
     }
 
     CABECALHO *registro_cabecalho_dados = ler_cabecalho(arquivo_dados);
     char status = get_status(registro_cabecalho_dados);
-    if (status == '0')
-    {
+    if (status == '0') {
         fclose(arquivo_dados);
         fclose(arquivo_index);
         printf("Falha no processamento do arquivo.\n");
@@ -161,34 +154,29 @@ void funcionalidade8 (void){
     ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
 
     DADOS* aux = malloc(sizeof(DADOS));
-    scanf(" %d",&n);
-    //OPORRA O QUE TA ACONTECENDO? NÃO É MAIS FÁCIL LER AS PARADAS DIRETO NA FUNÇÃO ACIMA??
-    for(int i = 0; i<n;i++){
-        scanf(" %d", &getbuffer);
-        scanf(" %s");
-        scanf(" %d",&id);
+    scanf("%d", &n); 
+
+    for (int i = 0; i < n; i++) {
+        scanf(" id %d", &id); 
+        printf("%d\n", id);
         rewind(arquivo_index);
-        printf("busca %d\n\n", i+1);
-        alvo = busca_arvB(arquivo_index,id,cabecalho_arvb);
-        if(alvo != -1){
+        printf("BUSCA %d\n\n", i + 1);
+        alvo = busca_arvB(arquivo_index, id, cabecalho_arvb);
+        if (alvo != -1) {
             fseek(arquivo_dados, alvo, SEEK_SET);
-            ler_registro(arquivo_dados,aux);
+            ler_registro(arquivo_dados, aux);
             print_registro(aux);
-        }
-        else{
+        } else {
             printf("Registro inexistente.\n\n");
         }
     }
 
-    //libera a memória
-    apagar_cabecalho(&registro_cabecalho_dados);
     free(cabecalho_arvb);
     free(aux);
+    apagar_cabecalho(&registro_cabecalho_dados);
 
-    // Fecha os arquivos
     fclose(arquivo_dados);
     fclose(arquivo_index);
-
 }
 
 void funcionalidade9 (void){
@@ -202,7 +190,8 @@ void funcionalidade9 (void){
     char arquivo_index_name[50];
     scanf("%s", arquivo_dados_name);
     scanf("%s", arquivo_index_name);
-
+    scanf(" %d", &num_buscas);
+    
     // Cria o arquivo de index no modo escrita binária
     FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
     if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
@@ -232,7 +221,7 @@ void funcionalidade9 (void){
     construcao_arvB(arquivo_dados, arquivo_index, registro_cabecalho_dados);
     rewind(arquivo_index);
     ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
-
+    printf("Li o cabeçalho\n");
     //alocação dos vedores utilizados para comparação
     DADOS* parametros = (DADOS*) malloc(sizeof(DADOS));
     DADOS* aux = (DADOS*) malloc(sizeof(DADOS));
@@ -375,8 +364,8 @@ void funcionalidade10(void){
     scanf(" %s", arquivo_dados_name);
     scanf(" %s", arquivo_index_name);
 
-        // Cria o arquivo de index no modo escrita binária
-    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
+    // Cria o arquivo de index no modo escrita e leitura binária
+    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "r+b");
     if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
     {
         return;
@@ -455,5 +444,7 @@ void funcionalidade10(void){
 
     fclose(arquivo_dados);
     fclose(arquivo_index);
+    binarioNaTela(arquivo_dados_name);
+    binarioNaTela(arquivo_index_name);
 
 }
