@@ -126,12 +126,21 @@ void funcionalidade8(void) {
     // Recebe os nomes dos arquivos de entrada
     char arquivo_dados_name[50];
     char arquivo_index_name[50];
+    char lixo[5];
     scanf("%s", arquivo_dados_name);
     scanf("%s", arquivo_index_name);
 
-    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
+    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "rb");
     if (arquivo_index == NULL) {
         return;
+    }
+
+    ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
+    if(cabecalho_arvb->status == '0'){
+        fclose(arquivo_index);
+        printf("Falha no processamento do arquivo.\n");
+        return;
+
     }
 
     FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "rb");
@@ -149,22 +158,20 @@ void funcionalidade8(void) {
         return;
     }
 
-    construcao_arvB(arquivo_dados, arquivo_index, registro_cabecalho_dados);
-    rewind(arquivo_index);
-    ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
-
     DADOS* aux = malloc(sizeof(DADOS));
     scanf("%d", &n); 
 
-    for (int i = 0; i < n; i++) {
-        scanf(" id %d", &id); 
-        printf("%d\n", id);
+    for(int i = 0; i<n;i++){
+        scanf(" %s",lixo);
+        scanf(" %d",&id);
         rewind(arquivo_index);
         printf("BUSCA %d\n\n", i + 1);
         alvo = busca_arvB(arquivo_index, id, cabecalho_arvb);
         if (alvo != -1) {
             fseek(arquivo_dados, alvo, SEEK_SET);
-            ler_registro(arquivo_dados, aux);
+            fread(&(aux->removido), sizeof(char), 1, arquivo_dados);
+            fread(&(aux->tamanho_registro), sizeof(int), 1, arquivo_dados);
+            ler_registro(arquivo_dados,aux);
             print_registro(aux);
         } else {
             printf("Registro inexistente.\n\n");
@@ -193,10 +200,18 @@ void funcionalidade9 (void){
     scanf(" %d", &num_buscas);
     
     // Cria o arquivo de index no modo escrita binária
-    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "w+b");
+    FILE *arquivo_index = abrir_arquivo(arquivo_index_name, "rb");
     if (arquivo_index == NULL) //Verifica se a abertura do arquivo foi bem-sucedida
     {
         return;
+    }
+
+    ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
+    if(cabecalho_arvb->status == '0'){
+        fclose(arquivo_index);
+        printf("Falha no processamento do arquivo.\n");
+        return;
+
     }
 
     // Abertura do arquivo de dados para leitura dos registros no modo binário
@@ -218,10 +233,6 @@ void funcionalidade9 (void){
     }
 
     //construção do arquivo de index
-    construcao_arvB(arquivo_dados, arquivo_index, registro_cabecalho_dados);
-    rewind(arquivo_index);
-    ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
-    printf("Li o cabeçalho\n");
     //alocação dos vedores utilizados para comparação
     DADOS* parametros = (DADOS*) malloc(sizeof(DADOS));
     DADOS* aux = (DADOS*) malloc(sizeof(DADOS));
@@ -261,7 +272,7 @@ void funcionalidade9 (void){
             }
         }
 
-        printf("busca %d\n\n", i+1);
+        printf("Busca %d\n\n", i+1);
 
         //checa se deve realizar a busca pelo index ou a busca sequencial
         if(parametros->id != -1){
@@ -372,7 +383,7 @@ void funcionalidade10(void){
     }
 
     // Abertura do arquivo de dados para leitura dos registros no modo binário
-    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "rb");
+    FILE *arquivo_dados = abrir_arquivo(arquivo_dados_name, "r+b");
     if (arquivo_dados == NULL)
     {
         fclose(arquivo_index);
@@ -388,21 +399,27 @@ void funcionalidade10(void){
         printf("Falha no processamento do arquivo.\n");
         return;
     }
-    rewind(arquivo_dados);
+
+    fseek(arquivo_dados,0,SEEK_SET);
     registro_cabecalho_dados->status = '0';
     escrever_cabecalho(arquivo_dados,registro_cabecalho_dados);
 
-    construcao_arvB(arquivo_dados, arquivo_index, registro_cabecalho_dados);
-    rewind(arquivo_index);
     ARVB* cabecalho_arvb = ler_cabecalho_arvB(arquivo_index);
     cabecalho_arvb->status='0';
+    rewind(arquivo_index);
     escrever_cabecalho_arvB(arquivo_index,cabecalho_arvb);
+
+    
 
     scanf(" %d",&num_insert);
 
     for(int i = 0;i<num_insert;i++){
+        printf("%d = num reg rem\n",registro_cabecalho_dados->n_reg_removidos);
         aux = ler_input_dados();
-        if(busca_arvB(arquivo_index,aux->id,cabecalho_arvb)==-1){
+        long int a = busca_arvB(arquivo_index,aux->id,cabecalho_arvb);
+        printf("%ld, byteoffset\n",a);
+        if(a==-1){
+            printf("não estava\n");
             if(registro_cabecalho_dados->n_reg_removidos==0){
                 endereco=registro_cabecalho_dados->prox_reg_disponivel;
                 fseek(arquivo_dados,endereco,SEEK_SET);
@@ -414,12 +431,14 @@ void funcionalidade10(void){
             else{
                 endereco = best_fit(arquivo_dados,aux,registro_cabecalho_dados,registro_cabecalho_dados->topo);
                 if(endereco != -1){
+                    printf("reaproveitando\n");
                     reaproveitamento_dados(arquivo_dados, aux, endereco);
                     registro_cabecalho_dados->n_reg_disponiveis++;
-                    registro_cabecalho_dados->n_reg_removidos++;
+                    registro_cabecalho_dados->n_reg_removidos--;
                     inserir_arvB(arquivo_index,cabecalho_arvb,aux->id,endereco);
                 }
                 else{
+                    printf("pondo no final\n");
                     endereco=registro_cabecalho_dados->prox_reg_disponivel;
                     fseek(arquivo_dados,endereco,SEEK_SET);
                     escrever_registro_dados(aux,arquivo_dados);
@@ -428,6 +447,9 @@ void funcionalidade10(void){
                     inserir_arvB(arquivo_index,cabecalho_arvb,aux->id,endereco);
                 }
             }
+        }
+        else{
+            printf("estava\n");
         }
         apagar_registro(&aux);
     }
@@ -444,6 +466,7 @@ void funcionalidade10(void){
 
     fclose(arquivo_dados);
     fclose(arquivo_index);
+   
     binarioNaTela(arquivo_dados_name);
     binarioNaTela(arquivo_index_name);
 

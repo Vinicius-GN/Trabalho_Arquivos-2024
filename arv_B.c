@@ -116,6 +116,7 @@ NO_ARVB * init_no(void){
     return no;
 }
 
+
 ARVB* ler_cabecalho_arvB(FILE* arquivo){
     //Aloca memória para o cabeçalho da árvore B
     ARVB* cabecalho = (ARVB*)malloc(sizeof(ARVB));
