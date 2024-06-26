@@ -89,7 +89,7 @@ DADOS* ler_input_dados()
         registro_dados->tam_Nome = strlen(nome); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
         contador_campo_var += registro_dados -> tam_Nome; //Acumula o tamanho do campo para a contagem do tamanho do registro
         registro_dados->nome = (char*)malloc(sizeof(registro_dados->tam_Nome * sizeof(char))); //Aloca memória para o campo
-        strcpy(registro_dados->nome, nome); //Copia a string para o campo
+        strncpy(registro_dados->nome, nome,registro_dados->tam_Nome); //Copia a string para o campo
     }
     //Ler a nacionalidade
     scan_quote_string(nacionalidade);
@@ -100,7 +100,7 @@ DADOS* ler_input_dados()
         registro_dados->tam_Nacionalidade = strlen(nacionalidade); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
         contador_campo_var += registro_dados->tam_Nacionalidade; //Acumula o tamanho do campo para a contagem do tamanho do registro
         registro_dados->nacionalidade= (char*)malloc(sizeof(registro_dados->tam_Nacionalidade * sizeof(char))); //Aloca memória para o campo
-        strcpy(registro_dados->nacionalidade, nacionalidade); //Copia a string para o campo
+        strncpy(registro_dados->nacionalidade, nacionalidade,registro_dados->tam_Nacionalidade); //Copia a string para o campo
     }
     //Ler o clube
     scan_quote_string(clube);
@@ -111,7 +111,76 @@ DADOS* ler_input_dados()
         registro_dados->tam_Clube = strlen(clube); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
         contador_campo_var += registro_dados->tam_Clube; //Acumula o tamanho do campo para a contagem do tamanho do registro
         registro_dados->clube = (char*)malloc(sizeof(registro_dados->tam_Clube * sizeof(char))); //Aloca memória para o campo
-        strcpy(registro_dados->clube, clube); //Copia a string para o campo
+        strncpy(registro_dados->clube, clube,registro_dados->tam_Clube); //Copia a string para o campo
+    }
+    registro_dados->tamanho_registro = contador_tamanho + contador_campo_var; //Atualiza o tamanho do registro de dados após ler os campos de input
+
+    return registro_dados;
+}
+
+DADOS* ler_input_dados2()
+{
+    //Alocação e inicialização do registro de dados
+    DADOS* registro_dados = init_registro_dados();
+
+    //Ao todo, temos que cada registro incialmente tem 33 bytes de tamanho fixo. 
+    int contador_tamanho = 33; 
+
+    //Variável que acumulará o tamanho dos campos de tamanho variável para a alocação e contagem do tamanho do registro
+    int contador_campo_var = 0;
+
+
+
+    //Inicialização de strings auxiliares para armazenar os campos de tamanho variável
+    char nome[100] = "\0";
+    char nacionalidade[100] = "\0";
+    char clube[100] = "\0";
+    char idade[100] = "\0";
+
+    /*-----Ler os campos de input do usuario-----*/
+
+    //Ler a idade do jogador
+    scan_quote_string(idade);
+
+    //Tranforma de string para inteiro usando a função atoi
+    registro_dados->idade = atoi(idade);
+    if(registro_dados->idade == 0){
+        registro_dados->idade = -1; 
+    }
+    /*Ler os campos de tamanho variavel:*/
+
+    //Ler o nome do jogador
+    scan_quote_string(nome);
+    if(strlen(nome) == 0){//Se a string for vazia, o tamanho do campo Nome é definido como 0
+        registro_dados->tam_Nome = 0;
+    }
+    else{
+        registro_dados->tam_Nome = strlen(nome); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
+        contador_campo_var += registro_dados -> tam_Nome; //Acumula o tamanho do campo para a contagem do tamanho do registro
+        registro_dados->nome = (char*)malloc(sizeof(registro_dados->tam_Nome * sizeof(char))); //Aloca memória para o campo
+        strncpy(registro_dados->nome, nome,registro_dados->tam_Nome); //Copia a string para o campo
+    }
+    //Ler a nacionalidade
+    scan_quote_string(nacionalidade);
+    if(strlen(nacionalidade) == 0){ //Se a string for vazia, o tamanho do campo Nacionalidade é definido como 0
+        registro_dados->tam_Nacionalidade = 0;
+    }
+    else{
+        registro_dados->tam_Nacionalidade = strlen(nacionalidade); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
+        contador_campo_var += registro_dados->tam_Nacionalidade; //Acumula o tamanho do campo para a contagem do tamanho do registro
+        registro_dados->nacionalidade= (char*)malloc(sizeof(registro_dados->tam_Nacionalidade * sizeof(char))); //Aloca memória para o campo
+        strncpy(registro_dados->nacionalidade, nacionalidade,registro_dados->tam_Nacionalidade); //Copia a string para o campo
+    }
+    //Ler o clube
+    scan_quote_string(clube);
+    if(strlen(clube) == 0){ //Se a string for vazia, o tamanho do campo Clube é definido como 0
+        registro_dados->tam_Clube = 0;
+    }
+    else{
+        registro_dados->tam_Clube = strlen(clube); //Caso contrário, o tamanho do campo é a quantidade de caracteres da string
+        contador_campo_var += registro_dados->tam_Clube; //Acumula o tamanho do campo para a contagem do tamanho do registro
+        registro_dados->clube = (char*)malloc(sizeof(registro_dados->tam_Clube * sizeof(char))); //Aloca memória para o campo
+        strncpy(registro_dados->clube, clube,registro_dados->tam_Clube); //Copia a string para o campo
     }
     registro_dados->tamanho_registro = contador_tamanho + contador_campo_var; //Atualiza o tamanho do registro de dados após ler os campos de input
 

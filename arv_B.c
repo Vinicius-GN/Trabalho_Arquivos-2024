@@ -596,29 +596,38 @@ void construcao_arvB(FILE *arquivo_dados, FILE *arquivo_index, CABECALHO *regist
 }
 
 long int busca_rec_arvB(FILE *index, int id, int RRN, NO_ARVB* aux){
+    //caso o RRN seja -1 a busca não encontrou nada e retorna -1
     if(RRN==-1){
         return -1;
     }
     else{
+        //lê o nó apontado pelo RRN
         ler_no_arvB(index,RRN,aux);
         int i = 0, chave;
         for(; i<aux->nroChaves; i++){
+            //passa por todas as chaves presentes no nó
             chave = get_chave(aux,i+1);
             if(id<chave){
+                //caso a chave seja maior que o id buscado, chama a função recursiva passando o filho que precede essa chave
                 return busca_rec_arvB(index,id,get_filho(aux,i+1),aux);
             }
             else if(id == chave){
+                //caso a chave seja igual o id buscado, retorna o byteoffset indicado pela chave
                 return get_valor(aux, i+1);
             }
         }
+        //caso o id buscado seja maior que todas as chaves, chama a função recursiva passando o ultimo filho 
         return busca_rec_arvB(index,id,get_filho(aux,i+1),aux);
     }
 
 }
 
 long int busca_arvB(FILE *index, int id,ARVB *cabecalho){
+    //certifica-se de que está no inicio do arquivo de indice
     rewind(index);
+    //aloca um nó auxiliar para a buscar
     NO_ARVB *aux = (NO_ARVB*)malloc(sizeof(NO_ARVB));
+    //chama a função de busca recursiva a partir da raiz da árvore b
     long int byte_offset = busca_rec_arvB(index,id,cabecalho->noRaiz,aux);
     free(aux);
     return byte_offset;

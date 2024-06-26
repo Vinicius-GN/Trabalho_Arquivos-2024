@@ -27,7 +27,9 @@ void funcionalidade7(void);
 /**
  * @brief Recuperação de dados na árvore B utilizando ID como chave de busca
  * 
- * Descrever um pouco mais
+ * A funcionalidade navega pelo arquivo de indice até encontrar uma chave condizente com a passada pelo
+ * usuário, após isso usa o byteoffset adquirido na arvore B para ir até o registro no arquivo de dados,
+ * e imprimir suas informações na tela.
  * 
  * @param void
  * @return void
@@ -37,7 +39,11 @@ void funcionalidade8(void);
 /**
  * @brief Recuperação dos DADOS de registros que satisfaçam os campos solicitados pelo usuário
  * 
- * Descrever um pouco mais
+ * Caso o id seja um dos Parâmetros da busca, navega pelo arquivo de indice até encontrar uma chave condizente com a passada pelo
+ * usuário, após isso usa o byteoffset adquirido na arvore B para ir até o registro no arquivo de dados,
+ * e caso os outros campos satisfaçam adicionais parâmetros, imprimir suas informações na tela.
+ * Caso contrário todos os registros do arquivos de dados são lidos sequencialmente e comparados com os parâmetros,
+ * se forem satisfeitos o registro é impresso.
  * 
  * @param void
  * @return void
@@ -47,7 +53,9 @@ void funcionalidade9(void);
 /**
  * @brief Inserção de novos registros nos arquivos de dados e de índice utilizando a abordagem dinâmica (reutilização de espaço)
  * 
- * Descrever um pouco mais
+ * A funcionalidade insere registros com as informações passadas pelo usuário, no arquivo de dados e no arquivo de índice, respeitando
+ * a estrutura da árvore B. Se houver algum registro marcado como logicamente apagado no registro de dados, há uma tentativa de reutilização
+ * de espaço usando best-fit, caso contrário o registro é inserido no final do arquivo.
  * 
  * @param void
  * @return void

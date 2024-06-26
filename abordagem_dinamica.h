@@ -22,6 +22,17 @@ typedef struct registro_dados_index DADOS_INDEX;
 DADOS* ler_input_dados(void);
 
 /**
+ * @brief Ler os dados de um registro de cabeçalho a ser inserido no arquivo de dados.
+ * 
+ * Essa função aloca e inicializar um registro de dados, lẽ as entradas do usuário por meio da função fornecida Scan_quote_string e retorna o registro de dados
+ * com os valores lidos e o correto tratamento de campos nulos, menos para o id.
+ * 
+ * @param void 
+ * @return DADOS*
+ */
+DADOS* ler_input_dados2(void);
+
+/**
  * @brief remove o registro lido do arquivo de dados e do indice, de forma que a lista de removidos fique em ordem crescente.
  * 
  * @param aux ponteiro para o registro lido que será removido.

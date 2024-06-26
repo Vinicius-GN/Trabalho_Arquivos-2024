@@ -16,6 +16,7 @@
         "lista_trabinr.h": "c",
         "lista_trabintr.h": "c",
         "funcionalidades_arvb.h": "c",
-        "arv_b.h": "c"
+        "arv_b.h": "c",
+        "random": "c"
     }
 }
