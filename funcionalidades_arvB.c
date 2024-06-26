@@ -19,7 +19,7 @@ struct arvB{
     char status;
     int noRaiz;
     int proxRRN;
-    int nroNiveis;
+    int nroChaves;
     char lixo[47]; //Caracteres para preenchimento "$" dos 60bytes de cada nó
 };
 
@@ -365,7 +365,7 @@ void funcionalidade9 (void){
 
 void funcionalidade10(void){
     //variaveis usadas na inserção
-    int num_insert;
+    int num_insert = 0;
     long int endereco;
     DADOS* aux = NULL;
 
@@ -413,60 +413,142 @@ void funcionalidade10(void){
 
     scanf(" %d",&num_insert);
 
-    for(int i = 0;i<num_insert;i++){
-        printf("%d = num reg rem\n",registro_cabecalho_dados->n_reg_removidos);
-        aux = ler_input_dados();
-        long int a = busca_arvB(arquivo_index,aux->id,cabecalho_arvb);
-        printf("%ld, byteoffset\n",a);
-        if(a==-1){
-            printf("não estava\n");
-            if(registro_cabecalho_dados->n_reg_removidos==0){
-                endereco=registro_cabecalho_dados->prox_reg_disponivel;
-                fseek(arquivo_dados,endereco,SEEK_SET);
-                escrever_registro_dados(aux,arquivo_dados);
-                registro_cabecalho_dados->prox_reg_disponivel= endereco + aux->tamanho_registro;
-                registro_cabecalho_dados->n_reg_disponiveis++;
-                inserir_arvB(arquivo_index,cabecalho_arvb,aux->id,endereco);
+
+    //Loop para realização das inserções
+    for (int i = 0; i < num_insert; i++)
+    {
+        // Alocar e ler o registro de dados do input
+        DADOS* registro_dados = ler_input_dados();
+
+        // LÓGICA DE REAPROVEITAMENTO DE ESPAÇO:
+
+        // Se o arquivo de dados não possui registros logicamente removidos, inserimos no final
+        if (getTopo(registro_cabecalho_dados) == -1 && getnRemovidos(registro_cabecalho_dados) == 0) 
+        {
+            //Verifica se o item que está sendo inserido já existe no arquivo de indice (Evita inserções repetidas)
+            if(1){
+
+                //Inserção no final do arquivo de dados (sem reaproveitamento de espaço)
+                //inserir_final(arquivo_dados, arquivo_index, registro_dados, registro_cabecalho_dados, vetor_index, registro_index);
+                long int endereco = getProxRegDisponivel(registro_cabecalho_dados);  
+                int chave = registro_dados->id;
+                long int byteoffset = endereco;  
+
+                // Uso o registro_cabecalho_dados->prox_reg_disponivel (byteoffset do final) e escreve o registro de dados lá
+                fseek(arquivo_dados, endereco, SEEK_SET);   
+                escrever_registro_dados(registro_dados, arquivo_dados);
+                endereco = ftell(arquivo_dados);
+                setProxRegDisponivel(registro_cabecalho_dados, endereco);
+
+                //Incrementar o número de registros no cabeçalho
+                int n_reg = getnRegDisponiveis(registro_cabecalho_dados);
+                set_nRegDisponiveis(registro_cabecalho_dados, n_reg+1);
+
+                // Inserir reg index no vetor de registros index
+                cabecalho_arvb->nroChaves++;
+                inserir_arvB(arquivo_index, cabecalho_arvb, chave, byteoffset);
+
+                // Att o cabelçalho do arq de dados e reescrever ele(n registro depóniveis, prox_reg_disponivel)
+                fseek(arquivo_dados, 0, SEEK_SET);  // Resetar o ponteiro do arquivo para o início
+
+                escrever_cabecalho(arquivo_dados, registro_cabecalho_dados); //Escreve o cabeçalho no arquivo de dados
             }
             else{
-                endereco = best_fit(arquivo_dados,aux,registro_cabecalho_dados,registro_cabecalho_dados->topo);
-                if(endereco != -1){
-                    printf("reaproveitando\n");
-                    reaproveitamento_dados(arquivo_dados, aux, endereco);
-                    registro_cabecalho_dados->n_reg_disponiveis++;
-                    registro_cabecalho_dados->n_reg_removidos--;
-                    inserir_arvB(arquivo_index,cabecalho_arvb,aux->id,endereco);
-                }
-                else{
-                    printf("pondo no final\n");
-                    endereco=registro_cabecalho_dados->prox_reg_disponivel;
-                    fseek(arquivo_dados,endereco,SEEK_SET);
-                    escrever_registro_dados(aux,arquivo_dados);
-                    registro_cabecalho_dados->prox_reg_disponivel= endereco + aux->tamanho_registro;
-                    registro_cabecalho_dados->n_reg_disponiveis++;
-                    inserir_arvB(arquivo_index,cabecalho_arvb,aux->id,endereco);
-                }
+                //Na inserção repetida, não fazemos nada.
             }
         }
-        else{
-            printf("estava\n");
+        else //Há reaproveitamento de espaço!
+        {
+            
+            //Verifica se o item que está sendo ordenado já existe no arquivo de indice
+            if(1){
+                // Como há registros logicamente removidos, temos que encontrar o endereço para inserção seguindo a estratégia best-fit:
+                long int endereco = best_fit(arquivo_dados, registro_dados, registro_cabecalho_dados, getTopo(registro_cabecalho_dados)); 
+
+                //Best-fit pode não encontrar nenhum endereço viável de inserção. Nesse caso, inserimos no final mesmo:
+                if(endereco == -1){
+                    //Sem reaproveitamento de espaço
+                    //Com reaproveitamento de espaço (best-fit)
+                    //Inserção no final do arquivo de dados (sem reaproveitamento de espaço)
+                    //inserir_final(arquivo_dados, arquivo_index, registro_dados, registro_cabecalho_dados, vetor_index, registro_index);
+                    long int endereco = getProxRegDisponivel(registro_cabecalho_dados);  
+                    int chave = registro_dados->id;
+                    long int byteoffset = endereco;  
+
+                    // Uso o registro_cabecalho_dados->prox_reg_disponivel (byteoffset do final) e escreve o registro de dados lá
+                    fseek(arquivo_dados, endereco, SEEK_SET);   
+                    escrever_registro_dados(registro_dados, arquivo_dados);
+                    endereco = ftell(arquivo_dados);
+                    setProxRegDisponivel(registro_cabecalho_dados, endereco);
+
+                    //Incrementar o número de registros no cabeçalho
+                    int n_reg = getnRegDisponiveis(registro_cabecalho_dados);
+                    set_nRegDisponiveis(registro_cabecalho_dados, n_reg+1);
+
+                    // Inserir reg index no vetor de registros index
+                    cabecalho_arvb->nroChaves++;
+                    inserir_arvB(arquivo_index, cabecalho_arvb, chave, byteoffset);
+
+                    // Att o cabelçalho do arq de dados e reescrever ele(n registro depóniveis, prox_reg_disponivel)
+                    fseek(arquivo_dados, 0, SEEK_SET);  // Resetar o ponteiro do arquivo para o início
+
+                    escrever_cabecalho(arquivo_dados, registro_cabecalho_dados); //Escreve o cabeçalho no arquivo de dados
+                }
+                else{
+                    //Com reaproveitamento de espaço (best-fit)
+                    int chave = registro_dados->id;
+                    long int byteoffset = endereco;  
+
+                    // Uso o endereço encontrado pelo best-fit para inserir meu novo registro
+                    fseek(arquivo_dados, endereco, SEEK_SET);   
+                    reaproveitamento_dados(arquivo_dados, registro_dados, endereco); //Substitui os caracteres faltantes por "$"
+
+                    //Incrementar o número de registros disponíveis no cabeçalho
+                    int n_reg = getnRegDisponiveis(registro_cabecalho_dados);
+                    set_nRegDisponiveis(registro_cabecalho_dados, n_reg+1);
+
+                    //Decrementar o número de registros removidos no cabeçalho
+                    int n_rem = getnRemovidos(registro_cabecalho_dados);
+                    set_nRegRemovidos(registro_cabecalho_dados, n_rem-1);
+
+                    // Inserir reg index no vetor de registros index
+                    cabecalho_arvb->nroChaves++;
+                    inserir_arvB(arquivo_index, cabecalho_arvb, chave, byteoffset);
+
+                    // Att o cabelçalho do arq de dados e reescrever ele(n registro depóniveis, prox_reg_disponivel)
+                    fseek(arquivo_dados, 0, SEEK_SET);  // Resetar o ponteiro do arquivo para o iníci
+
+                    escrever_cabecalho(arquivo_dados, registro_cabecalho_dados); //Rescreve o cabeçalho no arquivo de dados
+                }
+            }
+            else{
+                //Na inserção repetida, não fazemos nada.
+            }
         }
-        apagar_registro(&aux);
+        apagar_registro(&registro_dados); //Arrumar essa função
     }
 
-    rewind(arquivo_index);
-    rewind(arquivo_dados);
+    //Reescrever status do arquivo de indice
+
+    fseek(arquivo_dados,0,SEEK_SET);
     registro_cabecalho_dados->status = '1';
-    cabecalho_arvb->status = '1';
     escrever_cabecalho(arquivo_dados,registro_cabecalho_dados);
+
+    cabecalho_arvb->status='1';
+    rewind(arquivo_index);
     escrever_cabecalho_arvB(arquivo_index,cabecalho_arvb);
 
-    apagar_cabecalho(&registro_cabecalho_dados);
-    free(cabecalho_arvb);
+    /*Obs:Não é necessario alocar e passar o registro como parâmetro,
+      mas fica mais claro o que estamos fazendo do que só escrever um char no arquivo de indice.*/
 
+    // Liberar memória
+    free(registro_cabecalho_dados);
+
+    // Fechar os arquivos
     fclose(arquivo_dados);
     fclose(arquivo_index);
-   
+
+    // Impressão do arquivo de index e dados na tela
     binarioNaTela(arquivo_dados_name);
     binarioNaTela(arquivo_index_name);
 

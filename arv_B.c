@@ -126,8 +126,7 @@ ARVB* ler_cabecalho_arvB(FILE* arquivo){
     fread(&(cabecalho->noRaiz), sizeof(int), 1, arquivo);
     fread(&(cabecalho->proxRRN), sizeof(int), 1, arquivo);
     fread(&(cabecalho->nroChaves), sizeof(int), 1, arquivo);
-    //Lê o lixo de preenchimento do cabeçalho
-    //fread(&(cabecalho->lixo), sizeof(char), 47, arquivo);
+    fread(&(cabecalho->lixo), sizeof(char), 47, arquivo);
 
     //Retorna o cabeçalho lido
     return cabecalho;
