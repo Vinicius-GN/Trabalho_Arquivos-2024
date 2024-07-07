@@ -22,4 +22,5 @@ Este repositório é organizado em três partes principais, cada uma corresponde
 ### 3. Trabalho prático 2
 
 **Objetivo:** Implementar uma estrutura de árvore B para operações eficientes de buscas e inserções de registros.
+
 **Vídeo explicativo:** [Assistir vídeo](https://drive.google.com/file/d/1NdgkrYG0IPFtbvtZlDXHzJkTzTkH5EZA/view?usp=sharing)
